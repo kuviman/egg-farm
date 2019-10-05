@@ -162,7 +162,7 @@ impl Tile {
     }
     fn collide_projectile(&mut self, p: &mut Projectile) {
         match self {
-            Self::AngryWeed { .. } => {
+            Self::AngryWeed { mutation, .. } if *mutation == p.mutation => {
                 *self = Self::MutatedRoot;
                 p.alive = false;
             }
