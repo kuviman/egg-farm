@@ -27,7 +27,7 @@ struct SharedState {
 }
 
 pub const ANGRY_WEED_SHOOT_TIME: f32 = 3.0;
-pub const FERTILIZED_SOIL_TIME: f32 = 10.0;
+pub const FERTILIZED_SOIL_TIME: f32 = 5.0;
 
 impl Tile {
     pub fn is_food(&self) -> bool {
