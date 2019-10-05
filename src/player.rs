@@ -77,6 +77,10 @@ impl Player {
         primitive: &Primitive,
         brokes: Option<usize>,
     ) {
+        let mut radius = self.radius;
+        if self.eaten {
+            radius *= 1.0 + (self.leg_walk_phase / 4.0).cos() * 0.1;
+        }
         let mut pos_with_jump = self.pos;
         if let Some(time) = self.jump {
             pos_with_jump.y += (1.0 - ((time - 0.5) * 2.0).powi(2)) * 0.5;
@@ -90,33 +94,25 @@ impl Player {
             primitive.circle(
                 framebuffer,
                 camera,
-                pos_with_jump
-                    + vec2(-leg_x, -(1.0 - LEG_RADIUS - left_y * amp - leg_y)) * self.radius,
-                self.radius * LEG_RADIUS,
+                pos_with_jump + vec2(-leg_x, -(1.0 - LEG_RADIUS - left_y * amp - leg_y)) * radius,
+                radius * LEG_RADIUS,
                 Color::BLACK,
             );
             let right_y = -self.leg_walk_phase.sin().min(0.0) / 2.0 * (1.0 - self.stand_timer);
             primitive.circle(
                 framebuffer,
                 camera,
-                pos_with_jump
-                    + vec2(leg_x, -(1.0 - LEG_RADIUS - right_y * amp - leg_y)) * self.radius,
-                self.radius * LEG_RADIUS,
+                pos_with_jump + vec2(leg_x, -(1.0 - LEG_RADIUS - right_y * amp - leg_y)) * radius,
+                radius * LEG_RADIUS,
                 Color::BLACK,
             );
         }
+        primitive.circle(framebuffer, camera, pos_with_jump, radius, Color::BLACK);
         primitive.circle(
             framebuffer,
             camera,
             pos_with_jump,
-            self.radius,
-            Color::BLACK,
-        );
-        primitive.circle(
-            framebuffer,
-            camera,
-            pos_with_jump,
-            self.radius * 0.8,
+            radius * 0.8,
             Color::WHITE,
         );
 
@@ -127,15 +123,15 @@ impl Player {
             primitive.circle(
                 framebuffer,
                 camera,
-                pos_with_jump + vec2(EYE_X, EYE_Y) * self.radius,
-                self.radius * EYE_RADIUS,
+                pos_with_jump + vec2(EYE_X, EYE_Y) * radius,
+                radius * EYE_RADIUS,
                 Color::BLACK,
             );
             primitive.circle(
                 framebuffer,
                 camera,
-                pos_with_jump + vec2(-EYE_X, EYE_Y) * self.radius,
-                self.radius * EYE_RADIUS,
+                pos_with_jump + vec2(-EYE_X, EYE_Y) * radius,
+                radius * EYE_RADIUS,
                 Color::BLACK,
             );
         }
@@ -147,17 +143,17 @@ impl Player {
                 primitive.line(
                     framebuffer,
                     camera,
-                    pos_with_jump + vec2(-0.2, 0.2) * self.radius,
-                    pos_with_jump + vec2(-0.2, -0.2) * self.radius,
-                    self.radius * 0.2,
+                    pos_with_jump + vec2(-0.2, 0.2) * radius,
+                    pos_with_jump + vec2(-0.2, -0.2) * radius,
+                    radius * 0.2,
                     Color::BLACK,
                 );
                 primitive.line(
                     framebuffer,
                     camera,
-                    pos_with_jump + vec2(0.3, -0.2) * self.radius,
-                    pos_with_jump + vec2(-0.3, -0.2) * self.radius,
-                    self.radius * 0.2,
+                    pos_with_jump + vec2(0.3, -0.2) * radius,
+                    pos_with_jump + vec2(-0.3, -0.2) * radius,
+                    radius * 0.2,
                     Color::BLACK,
                 );
             }
