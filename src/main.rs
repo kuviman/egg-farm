@@ -230,6 +230,12 @@ impl geng::State for Game {
                 p.alive = false;
                 self.particles.boom(p.pos);
             }
+            if self.player.alive && (p.pos - self.player.pos).len() < p.radius + self.player.radius
+            {
+                p.alive = false;
+                self.particles.boom(self.player.pos);
+                self.player.alive = false;
+            }
         }
         self.projectiles.retain(|p| p.alive);
     }
@@ -279,7 +285,11 @@ impl geng::State for Game {
         let text = if (mouse_pos - help_pos - vec2(0.0, self.camera.fov * 3.0 / 40.0)).len()
             < self.camera.fov / 20.0
         {
-            self.stage.help().to_owned()
+            if self.player.alive {
+                self.stage.help().to_owned()
+            } else {
+                "press R to restart".to_owned()
+            }
         } else {
             self.text_at(mouse_pos)
         };

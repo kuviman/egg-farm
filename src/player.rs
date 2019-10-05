@@ -13,6 +13,7 @@ pub struct Player {
     pub want_jump: bool,
     pub landed: bool,
     pub eaten: bool,
+    pub alive: bool,
 }
 
 impl Player {
@@ -30,6 +31,7 @@ impl Player {
             want_jump: false,
             landed: false,
             eaten: false,
+            alive: true,
         }
     }
     pub fn landed(&mut self) -> bool {
@@ -41,6 +43,9 @@ impl Player {
         }
     }
     pub fn update(&mut self, delta_time: f32) {
+        if !self.alive {
+            return;
+        }
         if self.stage >= Stage::Born && (self.want_jump || self.jump.is_some()) {
             self.vel = vec2(0.0, 0.0);
             if self.jump.is_none() {
@@ -77,6 +82,9 @@ impl Player {
         primitive: &Primitive,
         brokes: Option<usize>,
     ) {
+        if !self.alive {
+            return;
+        }
         let mut radius = self.radius;
         if self.eaten {
             radius *= 1.0 + (self.leg_walk_phase / 4.0).cos() * 0.1;
