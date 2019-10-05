@@ -20,7 +20,7 @@ impl Player {
     }
     pub fn update(&mut self, delta_time: f32) {
         const ACCEL: f32 = 10.0;
-        let dv = (self.target_vel * self.max_speed - self.vel);
+        let dv = self.target_vel * self.max_speed - self.vel;
         if dv.len() > 1e-5 {
             self.vel += dv.normalize() * (ACCEL * delta_time).min(dv.len())
         }
