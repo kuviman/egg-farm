@@ -5,6 +5,9 @@ pub enum Mutation {
     Red,
     Green,
     Blue,
+    Yellow,
+    Cyan,
+    Purple,
 }
 
 impl Distribution<Mutation> for distributions::Standard {
@@ -24,6 +27,27 @@ impl Mutation {
             Self::Red => Color::RED,
             Self::Green => Color::GREEN,
             Self::Blue => Color::BLUE,
+            Self::Cyan => Color::rgb(0.0, 1.0, 1.0),
+            Self::Yellow => Color::rgb(1.0, 1.0, 0.0),
+            Self::Purple => Color::rgb(1.0, 0.0, 1.0),
+        }
+    }
+    pub fn mix(self, other: Option<Self>) -> Option<Self> {
+        let mut color = self.color();
+        if let Some(other) = other {
+            let other = other.color();
+            color.r = color.r.max(other.r);
+            color.g = color.g.max(other.g);
+            color.b = color.b.max(other.b);
+        }
+        match (color.r > 0.5, color.g > 0.5, color.b > 0.5) {
+            (false, false, false) | (true, true, true) => None,
+            (true, false, false) => Some(Self::Red),
+            (false, true, false) => Some(Self::Green),
+            (false, false, true) => Some(Self::Blue),
+            (true, true, false) => Some(Self::Yellow),
+            (true, false, true) => Some(Self::Purple),
+            (false, true, true) => Some(Self::Cyan),
         }
     }
 }

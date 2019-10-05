@@ -142,7 +142,7 @@ impl geng::State for Game {
         {
             self.stage = Stage::WaitForFood;
         }
-        if self.stage == Stage::WaitForFood && self.map.find(|tile| *tile == Tile::Food) > 0 {
+        if self.stage == Stage::WaitForFood && self.map.find(|tile| tile.is_food()) > 0 {
             self.stage = Stage::Poop;
         }
         if self.stage == Stage::Poop && self.map.find(|tile| tile.is_poop()) > 0 {
@@ -165,15 +165,20 @@ impl geng::State for Game {
         if self.stage == Stage::Mutate && self.player.mutation.is_some() {
             self.stage = Stage::KillAllMutated;
         }
-        if !self.player.eaten
-            && self.map.tiles[self.player.pos.x as usize][self.player.pos.y as usize] == Tile::Food
-        {
-            self.player.eaten = true;
-            self.map.tiles[self.player.pos.x as usize][self.player.pos.y as usize] =
-                Tile::FertilizedSoil {
-                    time: FERTILIZED_SOIL_TIME,
-                    mutation: None,
-                };
+        if !self.player.eaten {
+            if let Tile::Food { mutation } =
+                self.map.tiles[self.player.pos.x as usize][self.player.pos.y as usize]
+            {
+                self.player.eaten = true;
+                if let Some(mutation) = mutation {
+                    self.player.mutation = mutation.mix(self.player.mutation);
+                }
+                self.map.tiles[self.player.pos.x as usize][self.player.pos.y as usize] =
+                    Tile::FertilizedSoil {
+                        time: FERTILIZED_SOIL_TIME,
+                        mutation: None,
+                    };
+            }
         }
         if self.player.landed() {
             if self.player.eaten

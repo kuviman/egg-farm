@@ -9,12 +9,15 @@ pub enum Tile {
         time: f32,
         mutation: Option<Mutation>,
     },
-    Food,
+    Food {
+        mutation: Option<Mutation>,
+    },
     Poop {
         mutation: Option<Mutation>,
     },
     AngryWeed {
         time: f32,
+        mutation: Option<Mutation>,
     },
     MutatedRoot,
 }
@@ -27,6 +30,12 @@ pub const ANGRY_WEED_SHOOT_TIME: f32 = 3.0;
 pub const FERTILIZED_SOIL_TIME: f32 = 10.0;
 
 impl Tile {
+    pub fn is_food(&self) -> bool {
+        match self {
+            Self::Food { .. } => true,
+            _ => false,
+        }
+    }
     pub fn is_poop(&self) -> bool {
         match self {
             Self::Poop { .. } => true,
@@ -39,7 +48,7 @@ impl Tile {
             Self::BrokenShell => "Broken shell".to_owned(),
             Self::CrushedShell => "Crushed shell".to_owned(),
             Self::FertilizedSoil { .. } => "Fertilized soil".to_owned(),
-            Self::Food => "Food".to_owned(),
+            Self::Food { .. } => "Food".to_owned(),
             Self::Poop { .. } => "Poop".to_owned(),
             Self::AngryWeed { .. } => "Angry weed".to_owned(),
             Self::MutatedRoot => "Mutated root".to_owned(),
@@ -54,22 +63,25 @@ impl Tile {
         player: &Player,
     ) -> bool {
         match self {
-            Self::FertilizedSoil {
-                time,
-                mutation: None,
-            } => {
+            Self::FertilizedSoil { time, mutation } => {
                 *time -= delta_time;
                 if *time <= 0.0 {
                     if shared.peace > 0 {
                         shared.peace -= 1;
-                        *self = Self::Food;
+                        *self = Self::Food { mutation: None };
                     } else {
                         let options = [
-                            (5, Self::Food),
+                            (
+                                5,
+                                Self::Food {
+                                    mutation: *mutation,
+                                },
+                            ),
                             (
                                 1,
                                 Self::AngryWeed {
                                     time: ANGRY_WEED_SHOOT_TIME,
+                                    mutation: *mutation,
                                 },
                             ),
                         ];
@@ -86,7 +98,7 @@ impl Tile {
                     return true;
                 }
             }
-            Self::AngryWeed { time } => {
+            Self::AngryWeed { time, mutation } => {
                 let player_dist = (pos.map(|x| x as f32 + 0.5) - player.pos).len();
                 if player_dist < 2.0 {
                     let t = player_dist / player.max_speed / 2.0;
@@ -120,22 +132,19 @@ impl Tile {
                 *self = Self::CrushedShell;
                 return true;
             }
-            Self::CrushedShell
-            | Self::Poop { mutation: None }
-            | Self::Food
-            | Self::AngryWeed { .. } => {
+            Self::CrushedShell => {
                 *self = Self::FertilizedSoil {
                     time: FERTILIZED_SOIL_TIME,
                     mutation: None,
                 };
                 return true;
             }
-            Self::Poop {
-                mutation: Some(mutation),
-            } => {
+            Self::Poop { mutation }
+            | Self::Food { mutation }
+            | Self::AngryWeed { mutation, .. } => {
                 *self = Self::FertilizedSoil {
                     time: FERTILIZED_SOIL_TIME,
-                    mutation: Some(*mutation),
+                    mutation: *mutation,
                 };
                 return true;
             }
@@ -362,7 +371,7 @@ impl Map {
                             );
                         }
                     }
-                    Tile::Food => {
+                    Tile::Food { mutation } => {
                         primitive.circle(
                             framebuffer,
                             camera,
@@ -375,7 +384,7 @@ impl Map {
                             camera,
                             vec2(x as f32 + 0.5, y as f32 + 0.5),
                             0.2,
-                            Color::WHITE,
+                            mutation.map_or(Color::WHITE, |m| m.color()),
                         );
                         primitive.line(
                             framebuffer,
@@ -411,7 +420,7 @@ impl Map {
                             );
                         }
                     }
-                    Tile::AngryWeed { time } => {
+                    Tile::AngryWeed { time, mutation } => {
                         primitive.circle(
                             framebuffer,
                             camera,
@@ -424,7 +433,7 @@ impl Map {
                             camera,
                             vec2(x as f32 + 0.5, y as f32 + 0.5),
                             0.2,
-                            Color::WHITE,
+                            mutation.map_or(Color::WHITE, |m| m.color()),
                         );
                         primitive.line(
                             framebuffer,
