@@ -6,16 +6,18 @@ pub struct Projectile {
     pub vel: Vec2<f32>,
     pub alive: bool,
     pub spawn: Vec2<usize>,
+    pub mutation: Option<Mutation>,
 }
 
 impl Projectile {
-    pub fn new(pos: Vec2<f32>, radius: f32, vel: Vec2<f32>) -> Self {
+    pub fn new(pos: Vec2<f32>, radius: f32, vel: Vec2<f32>, mutation: Option<Mutation>) -> Self {
         Self {
             pos,
             radius,
             vel,
             alive: true,
             spawn: pos.map(|x| x as usize),
+            mutation,
         }
     }
     pub fn update(&mut self, delta_time: f32) {
@@ -33,7 +35,7 @@ impl Projectile {
             camera,
             self.pos,
             self.radius - 0.1,
-            Color::WHITE,
+            self.mutation.map_or(Color::WHITE, |m| m.color()),
         );
     }
 }

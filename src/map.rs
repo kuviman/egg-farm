@@ -61,27 +61,23 @@ impl Tile {
         pos: Vec2<usize>,
         projectiles: &mut Vec<Projectile>,
         player: &Player,
-    ) -> bool {
+    ) -> Option<Option<Mutation>> {
         match self {
             Self::FertilizedSoil { time, mutation } => {
+                let mutation = *mutation;
                 *time -= delta_time;
                 if *time <= 0.0 {
                     if shared.peace > 0 {
                         shared.peace -= 1;
-                        *self = Self::Food { mutation: None };
+                        *self = Self::Food { mutation };
                     } else {
                         let options = [
-                            (
-                                3,
-                                Self::Food {
-                                    mutation: *mutation,
-                                },
-                            ),
+                            (3, Self::Food { mutation }),
                             (
                                 1,
                                 Self::AngryWeed {
                                     time: ANGRY_WEED_SHOOT_TIME,
-                                    mutation: *mutation,
+                                    mutation,
                                 },
                             ),
                         ];
@@ -95,7 +91,7 @@ impl Tile {
                             rand -= w;
                         }
                     }
-                    return true;
+                    return Some(mutation);
                 }
             }
             Self::AngryWeed { time, mutation } => {
@@ -112,60 +108,57 @@ impl Tile {
                 }
                 if *time < 0.0 {
                     *time = ANGRY_WEED_SHOOT_TIME;
-                    match mutation {
-                        None => {
-                            let pos = pos.map(|x| x as f32 + 0.5);
-                            if (player.pos - pos).len() > 1e-5 {
-                                projectiles.push(Projectile::new(
-                                    pos,
-                                    0.2,
-                                    (player.pos - pos).normalize() * 5.0,
-                                ));
-                            }
-                        }
-                        Some(_) => { //TODO
-                        }
+                    let pos = pos.map(|x| x as f32 + 0.5);
+                    if (player.pos - pos).len() > 1e-5 {
+                        projectiles.push(Projectile::new(
+                            pos,
+                            0.2,
+                            (player.pos - pos).normalize() * 5.0,
+                            *mutation,
+                        ));
                     }
                 }
             }
             _ => {}
         }
-        false
+        None
     }
-    fn handle_land(&mut self, player: &mut Player) -> bool {
+    fn handle_land(&mut self, player: &mut Player) -> Option<Option<Mutation>> {
         match self {
             Self::BrokenShell => {
                 *self = Self::CrushedShell;
-                return true;
+                return Some(None);
             }
             Self::CrushedShell => {
                 *self = Self::FertilizedSoil {
                     time: FERTILIZED_SOIL_TIME,
                     mutation: None,
                 };
-                return true;
+                return Some(None);
             }
             Self::Poop { mutation }
             | Self::Food { mutation }
             | Self::AngryWeed { mutation, .. } => {
+                let mutation = *mutation;
                 *self = Self::FertilizedSoil {
                     time: FERTILIZED_SOIL_TIME,
-                    mutation: *mutation,
+                    mutation,
                 };
-                return true;
+                return Some(mutation);
             }
-            Self::FertilizedSoil { .. } => {
+            Self::FertilizedSoil { mutation, .. } => {
+                let mutation = *mutation;
                 *self = Self::Nothing;
-                return true;
+                return Some(mutation);
             }
             Self::MutatedRoot => {
                 *self = Self::Nothing;
                 player.mutation = global_rng().gen::<Mutation>().mix(player.mutation);
-                return true;
+                return Some(Some(Mutation::RGB));
             }
             _ => {}
         }
-        false
+        None
     }
     fn collide_projectile(&mut self, p: &mut Projectile) {
         match self {
@@ -207,8 +200,8 @@ impl Map {
     }
     pub fn land(&mut self, pos: Vec2<f32>, particles: &mut Particles, player: &mut Player) {
         let pos = pos.map(|x| x as usize);
-        if self.tiles[pos.x][pos.y].handle_land(player) {
-            particles.boom(pos.map(|x| x as f32 + 0.5));
+        if let Some(mutation) = self.tiles[pos.x][pos.y].handle_land(player) {
+            particles.boom(pos.map(|x| x as f32 + 0.5), mutation);
         }
     }
     pub fn collide_projectile(&mut self, p: &mut Projectile) {
@@ -245,14 +238,14 @@ impl Map {
     ) {
         for (x, row) in self.tiles.iter_mut().enumerate() {
             for (y, tile) in row.iter_mut().enumerate() {
-                if tile.update(
+                if let Some(mutation) = tile.update(
                     delta_time,
                     &mut self.shared,
                     vec2(x, y),
                     projectiles,
                     player,
                 ) {
-                    particles.boom(vec2(x as f32 + 0.5, y as f32 + 0.5));
+                    particles.boom(vec2(x as f32 + 0.5, y as f32 + 0.5), mutation);
                 }
             }
         }

@@ -8,6 +8,7 @@ pub enum Mutation {
     Yellow,
     Cyan,
     Purple,
+    RGB,
 }
 
 impl Distribution<Mutation> for distributions::Standard {
@@ -30,6 +31,7 @@ impl Mutation {
             Self::Cyan => Color::rgb(0.0, 1.0, 1.0),
             Self::Yellow => Color::rgb(1.0, 1.0, 0.0),
             Self::Purple => Color::rgb(1.0, 0.0, 1.0),
+            Self::RGB => global_rng().gen::<Self>().color(),
         }
     }
     pub fn mix(self, other: Option<Self>) -> Option<Self> {

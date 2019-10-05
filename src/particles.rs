@@ -4,6 +4,7 @@ struct Particle {
     pos: Vec2<f32>,
     size: f32,
     vel: Vec2<f32>,
+    color: Color<f32>,
     speed: f32,
     t: f32,
 }
@@ -28,7 +29,7 @@ impl Particles {
             particles: Vec::new(),
         }
     }
-    pub fn spawn(&mut self, pos: Vec2<f32>, size: f32) {
+    pub fn spawn(&mut self, pos: Vec2<f32>, size: f32, mutation: Option<Mutation>) {
         self.particles.push(Particle {
             pos,
             size,
@@ -38,11 +39,12 @@ impl Particles {
             ),
             speed: global_rng().gen_range(1.0, 2.0),
             t: 0.0,
+            color: mutation.map_or(Color::WHITE, |m| m.color()),
         })
     }
-    pub fn boom(&mut self, pos: Vec2<f32>) {
+    pub fn boom(&mut self, pos: Vec2<f32>, mutation: Option<Mutation>) {
         for _ in 0..10 {
-            self.spawn(pos, 0.4);
+            self.spawn(pos, 0.4, mutation);
         }
     }
     pub fn update(&mut self, delta_time: f32) {
@@ -72,7 +74,7 @@ impl Particles {
                 camera,
                 particle.pos,
                 (particle.radius() - 0.1).max(0.0),
-                Color::WHITE,
+                particle.color,
             );
         }
     }

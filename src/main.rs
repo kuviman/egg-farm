@@ -186,7 +186,7 @@ impl geng::State for Game {
                     == Tile::Nothing
             {
                 self.player.eaten = false;
-                self.particles.boom(self.player.pos);
+                self.particles.boom(self.player.pos, self.player.mutation);
                 self.map.tiles[self.player.pos.x as usize][self.player.pos.y as usize] =
                     Tile::Poop {
                         mutation: self.player.mutation,
@@ -216,7 +216,7 @@ impl geng::State for Game {
         if fix_pos != self.player.pos {
             self.player.pos = fix_pos;
             if self.player.vel.len() > self.player.max_speed / 2.0 && self.stage == Stage::Moving {
-                self.particles.boom(self.player.pos);
+                self.particles.boom(self.player.pos, None);
                 let mut shell_pos = Vec::new();
                 for dx in -1..=1 {
                     for dy in -1..=1 {
@@ -236,7 +236,7 @@ impl geng::State for Game {
                 for pos in shell_pos {
                     if self.map.tiles[pos.x][pos.y] == Tile::Nothing {
                         self.map.tiles[pos.x][pos.y] = Tile::BrokenShell;
-                        self.particles.boom(pos.map(|x| x as f32 + 0.5));
+                        self.particles.boom(pos.map(|x| x as f32 + 0.5), None);
                         break;
                     }
                 }
@@ -263,13 +263,10 @@ impl geng::State for Game {
             if self.player.alive && (p.pos - self.player.pos).len() < p.radius + self.player.radius
             {
                 p.alive = false;
-                self.particles.boom(self.player.pos);
+                self.particles.boom(self.player.pos, self.player.mutation);
                 self.player.alive = false;
             }
             self.map.collide_projectile(p);
-            if !p.alive {
-                self.particles.boom(p.pos);
-            }
             p.update(delta_time);
             if p.pos.x < 0.0
                 || p.pos.y < 0.0
@@ -277,7 +274,9 @@ impl geng::State for Game {
                 || p.pos.y >= self.map.size().y as f32
             {
                 p.alive = false;
-                self.particles.boom(p.pos);
+            }
+            if !p.alive {
+                self.particles.boom(p.pos, p.mutation);
             }
         }
         self.projectiles.retain(|p| p.alive);
