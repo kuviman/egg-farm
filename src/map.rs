@@ -24,10 +24,20 @@ impl Map {
         fn close(pos: f32, size: usize) -> bool {
             pos.abs() < 0.5 || (pos - size as f32).abs() < 0.5
         }
-        if close(pos.x, self.size().x) || close(pos.y, self.size().y) {
-            return Some("Wall".to_owned());
+        match self
+            .tiles
+            .get(pos.x.max(0.0) as usize)
+            .and_then(|row| row.get(pos.y.max(0.0) as usize))
+        {
+            None | Some(Tile::Nothing) => {
+                if close(pos.x, self.size().x) || close(pos.y, self.size().y) {
+                    Some("Wall".to_owned())
+                } else {
+                    None
+                }
+            }
+            Some(Tile::BrokenShell) => Some("Broken shell".to_owned()),
         }
-        None
     }
     pub fn draw(
         &self,
