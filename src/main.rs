@@ -353,11 +353,11 @@ impl geng::State for Game {
         let text = if (mouse_pos - help_pos - vec2(0.0, self.camera.fov * 3.0 / 40.0)).len()
             < self.camera.fov / 20.0
         {
-            if self.player.alive {
-                self.stage.help().to_owned()
-            } else {
-                "press R to restart".to_owned()
+            let mut text = self.stage.help().to_owned();
+            if !self.player.alive {
+                text += " (press R to restart)";
             }
+            text
         } else {
             self.text_at(mouse_pos)
         };
