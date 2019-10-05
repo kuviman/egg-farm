@@ -349,7 +349,7 @@ impl Map {
                             );
                         }
                     }
-                    Tile::FertilizedSoil { .. } => {
+                    Tile::FertilizedSoil { mutation, .. } => {
                         for &dv in &[vec2(0.2, 0.5), vec2(0.3, 0.3), vec2(0.5, 0.2)] {
                             let pos = vec2(x as f32, y as f32) + dv;
                             primitive.line(
@@ -358,7 +358,7 @@ impl Map {
                                 pos,
                                 pos + vec2(0.4, 0.3),
                                 0.1,
-                                Color::BLACK,
+                                mutation.map_or(Color::BLACK, |m| m.color()),
                             );
                         }
                     }
