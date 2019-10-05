@@ -99,8 +99,25 @@ impl geng::State for Game {
             self.player.target_vel = self.player.target_vel.normalize();
         }
         self.player.update(delta_time);
+        if !self.player.eaten
+            && self.map.tiles[self.player.pos.x as usize][self.player.pos.y as usize] == Tile::Food
+        {
+            self.player.eaten = true;
+            self.map.tiles[self.player.pos.x as usize][self.player.pos.y as usize] =
+                Tile::FertilizedSoil {
+                    time: FERTILIZED_SOIL_TIME,
+                };
+        }
         if self.player.landed() {
             self.map.land(self.player.pos, &mut self.particles);
+            if self.player.eaten
+                && self.map.tiles[self.player.pos.x as usize][self.player.pos.y as usize]
+                    == Tile::Nothing
+            {
+                self.player.eaten = false;
+                self.particles.boom(self.player.pos);
+                self.map.tiles[self.player.pos.x as usize][self.player.pos.y as usize] = Tile::Poop;
+            }
         }
         if self.stage == Stage::Start && (self.player.pos - self.camera.center).len() > 1.0 {
             self.stage = Stage::Moving;

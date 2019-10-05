@@ -7,9 +7,10 @@ pub enum Tile {
     CrushedShell,
     FertilizedSoil { time: f32 },
     Food,
+    Poop,
 }
 
-const FERTILIZED_SOIL_TIME: f32 = 10.0;
+pub const FERTILIZED_SOIL_TIME: f32 = 10.0;
 
 impl Tile {
     fn text(&self) -> String {
@@ -19,6 +20,7 @@ impl Tile {
             Self::CrushedShell => "Crushed shell".to_owned(),
             Self::FertilizedSoil { .. } => "Fertilized soil".to_owned(),
             Self::Food => "Food".to_owned(),
+            Self::Poop => "Poop".to_owned(),
         }
     }
     fn update(&mut self, delta_time: f32) -> bool {
@@ -40,7 +42,7 @@ impl Tile {
                 *self = Self::CrushedShell;
                 return true;
             }
-            Self::CrushedShell => {
+            Self::CrushedShell | Self::Poop => {
                 *self = Self::FertilizedSoil {
                     time: FERTILIZED_SOIL_TIME,
                 };
@@ -243,6 +245,25 @@ impl Map {
                             0.1,
                             Color::BLACK,
                         )
+                    }
+                    Tile::Poop => {
+                        let pos = vec2(x as f32, y as f32);
+                        let circles = [
+                            (pos + vec2(0.3, 0.3), 0.2),
+                            (pos + vec2(0.4, 0.3), 0.2),
+                            (pos + vec2(0.5, 0.3), 0.2),
+                            (pos + vec2(0.6, 0.3), 0.2),
+                            (pos + vec2(0.7, 0.3), 0.2),
+                            (pos + vec2(0.4, 0.4), 0.2),
+                            (pos + vec2(0.6, 0.4), 0.2),
+                            (pos + vec2(0.55, 0.5), 0.2),
+                        ];
+                        for &(pos, radius) in &circles {
+                            primitive.circle(framebuffer, camera, pos, radius, Color::BLACK);
+                        }
+                        for &(pos, radius) in &circles {
+                            primitive.circle(framebuffer, camera, pos, radius - 0.1, Color::WHITE);
+                        }
                     }
                 }
             }

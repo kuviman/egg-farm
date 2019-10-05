@@ -12,6 +12,7 @@ pub struct Player {
     pub jump: Option<f32>,
     pub want_jump: bool,
     pub landed: bool,
+    pub eaten: bool,
 }
 
 impl Player {
@@ -28,6 +29,7 @@ impl Player {
             jump: None,
             want_jump: false,
             landed: false,
+            eaten: false,
         }
     }
     pub fn landed(&mut self) -> bool {
