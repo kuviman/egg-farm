@@ -17,7 +17,7 @@ impl Player {
     pub fn new(pos: Vec2<f32>) -> Self {
         Self {
             pos,
-            radius: 0.3,
+            radius: 0.5,
             target_vel: vec2(0.0, 0.0),
             vel: vec2(0.0, 0.0),
             max_speed: 4.0,

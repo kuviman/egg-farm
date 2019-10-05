@@ -158,6 +158,7 @@ impl geng::State for Game {
                     .sum::<usize>()
                     == 3
                 {
+                    self.player.radius = 0.3;
                     self.stage = Stage::Born;
                 }
             }
