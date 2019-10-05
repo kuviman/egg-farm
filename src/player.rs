@@ -48,7 +48,6 @@ impl Player {
         if self.stage >= Stage::Born {
             const WALK_AMP: f32 = 0.3;
             const LEG_X: f32 = 0.6;
-            const LEG_AMP: f32 = 0.4;
             const LEG_RADIUS: f32 = 0.3;
             let left_y = self.leg_walk_phase.sin().max(0.0) / 2.0 * (1.0 - self.stand_timer);
             primitive.circle(
