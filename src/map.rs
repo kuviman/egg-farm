@@ -42,7 +42,7 @@ impl Tile {
                 *self = Self::CrushedShell;
                 return true;
             }
-            Self::CrushedShell | Self::Poop => {
+            Self::CrushedShell | Self::Poop | Self::Food => {
                 *self = Self::FertilizedSoil {
                     time: FERTILIZED_SOIL_TIME,
                 };
