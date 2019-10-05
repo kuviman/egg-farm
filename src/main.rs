@@ -176,7 +176,7 @@ impl geng::State for Game {
                 self.map.tiles[self.player.pos.x as usize][self.player.pos.y as usize] =
                     Tile::FertilizedSoil {
                         time: FERTILIZED_SOIL_TIME,
-                        mutation: None,
+                        mutation,
                     };
             }
         }
