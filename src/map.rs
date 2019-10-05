@@ -5,10 +5,17 @@ pub enum Tile {
     Nothing,
     BrokenShell,
     CrushedShell,
-    FertilizedSoil { time: f32 },
+    FertilizedSoil {
+        time: f32,
+        mutation: Option<Mutation>,
+    },
     Food,
-    Poop,
-    AngryWeed { time: f32 },
+    Poop {
+        mutation: Option<Mutation>,
+    },
+    AngryWeed {
+        time: f32,
+    },
     MutatedRoot,
 }
 
@@ -20,6 +27,12 @@ pub const ANGRY_WEED_SHOOT_TIME: f32 = 3.0;
 pub const FERTILIZED_SOIL_TIME: f32 = 10.0;
 
 impl Tile {
+    pub fn is_poop(&self) -> bool {
+        match self {
+            Self::Poop { .. } => true,
+            _ => false,
+        }
+    }
     fn text(&self) -> String {
         match self {
             Self::Nothing => "Nothing".to_owned(),
@@ -27,7 +40,7 @@ impl Tile {
             Self::CrushedShell => "Crushed shell".to_owned(),
             Self::FertilizedSoil { .. } => "Fertilized soil".to_owned(),
             Self::Food => "Food".to_owned(),
-            Self::Poop => "Poop".to_owned(),
+            Self::Poop { .. } => "Poop".to_owned(),
             Self::AngryWeed { .. } => "Angry weed".to_owned(),
             Self::MutatedRoot => "Mutated root".to_owned(),
         }
@@ -41,7 +54,10 @@ impl Tile {
         player: &Player,
     ) -> bool {
         match self {
-            Self::FertilizedSoil { time } => {
+            Self::FertilizedSoil {
+                time,
+                mutation: None,
+            } => {
                 *time -= delta_time;
                 if *time <= 0.0 {
                     if shared.peace > 0 {
@@ -104,9 +120,22 @@ impl Tile {
                 *self = Self::CrushedShell;
                 return true;
             }
-            Self::CrushedShell | Self::Poop | Self::Food | Self::AngryWeed { .. } => {
+            Self::CrushedShell
+            | Self::Poop { mutation: None }
+            | Self::Food
+            | Self::AngryWeed { .. } => {
                 *self = Self::FertilizedSoil {
                     time: FERTILIZED_SOIL_TIME,
+                    mutation: None,
+                };
+                return true;
+            }
+            Self::Poop {
+                mutation: Some(mutation),
+            } => {
+                *self = Self::FertilizedSoil {
+                    time: FERTILIZED_SOIL_TIME,
+                    mutation: Some(*mutation),
                 };
                 return true;
             }
@@ -357,7 +386,7 @@ impl Map {
                             Color::BLACK,
                         );
                     }
-                    Tile::Poop => {
+                    Tile::Poop { mutation } => {
                         let pos = vec2(x as f32, y as f32);
                         let circles = [
                             (pos + vec2(0.3, 0.3), 0.2),
@@ -373,7 +402,13 @@ impl Map {
                             primitive.circle(framebuffer, camera, pos, radius, Color::BLACK);
                         }
                         for &(pos, radius) in &circles {
-                            primitive.circle(framebuffer, camera, pos, radius - 0.1, Color::WHITE);
+                            primitive.circle(
+                                framebuffer,
+                                camera,
+                                pos,
+                                radius - 0.1,
+                                mutation.map_or(Color::WHITE, |m| m.color()),
+                            );
                         }
                     }
                     Tile::AngryWeed { time } => {

@@ -143,10 +143,10 @@ impl geng::State for Game {
         if self.stage == Stage::WaitForFood && self.map.find(|tile| *tile == Tile::Food) > 0 {
             self.stage = Stage::Poop;
         }
-        if self.stage == Stage::Poop && self.map.find(|tile| *tile == Tile::Poop) > 0 {
+        if self.stage == Stage::Poop && self.map.find(|tile| tile.is_poop()) > 0 {
             self.stage = Stage::PoopFertilize;
         }
-        if self.stage == Stage::PoopFertilize && self.map.find(|tile| *tile == Tile::Poop) == 0 {
+        if self.stage == Stage::PoopFertilize && self.map.find(|tile| tile.is_poop()) == 0 {
             self.stage = Stage::GrowWeed;
         }
         if self.stage == Stage::GrowWeed
@@ -167,6 +167,7 @@ impl geng::State for Game {
             self.map.tiles[self.player.pos.x as usize][self.player.pos.y as usize] =
                 Tile::FertilizedSoil {
                     time: FERTILIZED_SOIL_TIME,
+                    mutation: None,
                 };
         }
         if self.player.landed() {
@@ -178,7 +179,11 @@ impl geng::State for Game {
             {
                 self.player.eaten = false;
                 self.particles.boom(self.player.pos);
-                self.map.tiles[self.player.pos.x as usize][self.player.pos.y as usize] = Tile::Poop;
+                self.map.tiles[self.player.pos.x as usize][self.player.pos.y as usize] =
+                    Tile::Poop {
+                        mutation: self.player.mutation,
+                    };
+                self.player.mutation = None;
             }
         }
         if self.stage == Stage::Start && (self.player.pos - self.camera.center).len() > 1.0 {
