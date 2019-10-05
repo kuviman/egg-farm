@@ -1,8 +1,8 @@
 use super::*;
 
 pub struct Player {
-    pos: Vec2<f32>,
-    radius: f32,
+    pub pos: Vec2<f32>,
+    pub radius: f32,
 }
 
 impl Player {

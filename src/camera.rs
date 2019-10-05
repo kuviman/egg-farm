@@ -29,6 +29,15 @@ impl Camera {
             u_view_matrix: self.view_matrix(),
         }
     }
+    pub fn world_to_screen(&self, framebuffer: &ugli::Framebuffer, pos: Vec2<f32>) -> Vec2<f32> {
+        let framebuffer_size = framebuffer.get_size().map(|x| x as f32);
+        let pos = (self.projection_matrix(framebuffer) * self.view_matrix())
+            * pos.extend(0.0).extend(1.0);
+        vec2(
+            (pos.x + 1.0) / 2.0 * framebuffer_size.x,
+            (pos.y + 1.0) / 2.0 * framebuffer_size.y,
+        )
+    }
     pub fn screen_to_world(&self, framebuffer: &ugli::Framebuffer, pos: Vec2<f32>) -> Vec2<f32> {
         let framebuffer_size = framebuffer.get_size().map(|x| x as f32);
         let pos = vec2(

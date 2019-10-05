@@ -32,6 +32,15 @@ impl Game {
             primitive: Primitive::new(geng),
         }
     }
+    fn text_at(&self, pos: Vec2<f32>) -> String {
+        if let Some(text) = self.map.text_at(pos) {
+            return text;
+        }
+        if (self.player.pos - pos).len() < self.player.radius {
+            return "YOU".to_owned();
+        }
+        "Nothing".to_owned()
+    }
 }
 
 impl geng::State for Game {
@@ -76,6 +85,18 @@ impl geng::State for Game {
             Color::BLACK,
         );
         self.player.draw(framebuffer, &self.camera, &self.primitive);
+        let mouse_pos = self.camera.screen_to_world(
+            framebuffer,
+            self.geng.window().mouse_pos().map(|x| x as f32),
+        );
+        self.primitive.text(
+            framebuffer,
+            &self.camera,
+            &self.text_at(mouse_pos),
+            mouse_pos,
+            1.0,
+            Color::BLACK,
+        );
     }
     fn handle_event(&mut self, event: geng::Event) {}
 }

@@ -13,6 +13,7 @@ pub struct Instance {
 }
 
 pub struct Primitive {
+    font: geng::Font,
     quad_geometry: ugli::VertexBuffer<Vertex>,
     instances: RefCell<ugli::VertexBuffer<Instance>>,
     program: ugli::Program,
@@ -22,6 +23,11 @@ pub struct Primitive {
 impl Primitive {
     pub fn new(geng: &Rc<Geng>) -> Self {
         Self {
+            font: geng::Font::new(
+                geng,
+                include_bytes!("../../static/Simply Rounded Bold.ttf").to_vec(),
+            )
+            .unwrap(),
             quad_geometry: ugli::VertexBuffer::new_static(
                 geng.ugli(),
                 vec![
@@ -49,6 +55,19 @@ impl Primitive {
                 .compile(concat!("#define CIRCLE\n", include_str!("program.glsl")))
                 .unwrap(),
         }
+    }
+    pub fn text(
+        &self,
+        framebuffer: &mut ugli::Framebuffer,
+        camera: &Camera,
+        text: &str,
+        pos: Vec2<f32>,
+        size: f32,
+        color: Color<f32>,
+    ) {
+        let p1 = camera.world_to_screen(framebuffer, pos);
+        let p2 = camera.world_to_screen(framebuffer, pos + vec2(0.0, size));
+        self.font.draw(framebuffer, text, p1, p2.y - p1.y, color);
     }
     pub fn quad(
         &self,
