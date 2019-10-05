@@ -48,6 +48,10 @@ impl Tile {
                 };
                 return true;
             }
+            Self::FertilizedSoil { .. } => {
+                *self = Self::Nothing;
+                return true;
+            }
             _ => {}
         }
         false
