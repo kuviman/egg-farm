@@ -122,11 +122,8 @@ impl geng::State for Game {
                     self.particles.spawn(self.player.pos, self.player.radius);
                 }
                 let mut shell_pos = Vec::new();
-                for dx in -2..=2 {
-                    for dy in -2..=2 {
-                        if dx.abs() + dy.abs() != 3 {
-                            continue;
-                        }
+                for dx in -1..=1 {
+                    for dy in -1..=1 {
                         let x = self.player.pos.x as i32 + dx;
                         let y = self.player.pos.y as i32 + dy;
                         if x >= 0
@@ -140,7 +137,7 @@ impl geng::State for Game {
                 }
                 use rand::seq::SliceRandom;
                 shell_pos.shuffle(&mut global_rng());
-                for pos in shell_pos.into_iter().take(2) {
+                for pos in shell_pos.into_iter().take(3) {
                     self.map.tiles[pos.x][pos.y] = Tile::BrokenShell;
                     for _ in 0..5 {
                         self.particles
