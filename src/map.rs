@@ -90,11 +90,43 @@ impl Map {
                 match tile {
                     Tile::Nothing => {}
                     Tile::BrokenShell => {
-                        primitive.quad(
+                        primitive.half_circle(
                             framebuffer,
                             camera,
-                            AABB::pos_size(vec2(x as f32, y as f32), vec2(1.0, 1.0)),
-                            Color::GRAY,
+                            vec2(x as f32 + 0.5, y as f32 + 0.5),
+                            0.4,
+                            Color::BLACK,
+                        );
+                        primitive.half_circle(
+                            framebuffer,
+                            camera,
+                            vec2(x as f32 + 0.5, y as f32 + 0.5),
+                            0.3,
+                            Color::WHITE,
+                        );
+                        primitive.line(
+                            framebuffer,
+                            camera,
+                            vec2(x as f32 + 0.5, y as f32 + 0.5) + vec2(1.0, 1.0).normalize() * 0.4,
+                            vec2(x as f32 + 0.5, y as f32 + 0.5) - vec2(1.0, 1.0).normalize() * 0.4,
+                            0.1,
+                            Color::BLACK,
+                        );
+                        primitive.line(
+                            framebuffer,
+                            camera,
+                            vec2(x as f32 + 0.5, y as f32 + 0.5),
+                            vec2(x as f32 + 0.5, y as f32 + 0.3),
+                            0.1,
+                            Color::BLACK,
+                        );
+                        primitive.line(
+                            framebuffer,
+                            camera,
+                            vec2(x as f32 + 0.7, y as f32 + 0.35),
+                            vec2(x as f32 + 0.45, y as f32 + 0.35),
+                            0.1,
+                            Color::BLACK,
                         );
                     }
                 }

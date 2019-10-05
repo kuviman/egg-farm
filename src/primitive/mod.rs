@@ -15,6 +15,7 @@ pub struct Instance {
 pub struct Primitive {
     font: geng::Font,
     quad_geometry: ugli::VertexBuffer<Vertex>,
+    dyn_geometry: RefCell<ugli::VertexBuffer<Vertex>>,
     instances: RefCell<ugli::VertexBuffer<Instance>>,
     program: ugli::Program,
     circle_program: ugli::Program,
@@ -45,6 +46,7 @@ impl Primitive {
                     },
                 ],
             ),
+            dyn_geometry: RefCell::new(ugli::VertexBuffer::new_dynamic(geng.ugli(), vec![])),
             instances: RefCell::new(ugli::VertexBuffer::new_dynamic(geng.ugli(), vec![])),
             program: geng
                 .shader_lib()
@@ -132,6 +134,57 @@ impl Primitive {
             &instances,
         );
     }
+    pub fn line(
+        &self,
+        framebuffer: &mut ugli::Framebuffer,
+        camera: &Camera,
+        p1: Vec2<f32>,
+        p2: Vec2<f32>,
+        width: f32,
+        color: Color<f32>,
+    ) {
+        let v = (p2 - p1).normalize();
+        let n = vec2(-v.y, v.x);
+        let w = width / 2.0;
+        let n = n * w;
+        let mut geom = self.dyn_geometry.borrow_mut();
+        geom.clear();
+        geom.push(Vertex { a_pos: p1 + n });
+        geom.push(Vertex { a_pos: p2 + n });
+        geom.push(Vertex { a_pos: p2 - n });
+        geom.push(Vertex { a_pos: p1 - n });
+        let mut instances = self.instances.borrow_mut();
+        instances.clear();
+        instances.push(Instance {
+            i_pos: vec2(0.0, 0.0),
+            i_size: vec2(1.0, 1.0),
+            i_color: color,
+        });
+        self.draw(framebuffer, camera, &*geom, &*instances)
+    }
+    pub fn half_circle(
+        &self,
+        framebuffer: &mut ugli::Framebuffer,
+        camera: &Camera,
+        pos: Vec2<f32>,
+        radius: f32,
+        color: Color<f32>,
+    ) {
+        let mut instances = self.instances.borrow_mut();
+        instances.clear();
+        instances.push(Instance {
+            i_pos: pos - vec2(radius, radius),
+            i_size: vec2(radius, radius) * 2.0,
+            i_color: color,
+        });
+        self.draw_with(
+            &self.circle_program,
+            framebuffer,
+            camera,
+            self.quad_geometry.slice(0..3),
+            &instances,
+        );
+    }
     pub fn quads(
         &self,
         framebuffer: &mut ugli::Framebuffer,
@@ -140,22 +193,22 @@ impl Primitive {
     ) {
         self.draw(framebuffer, camera, &self.quad_geometry, instances);
     }
-    pub fn draw(
+    pub fn draw<'a, V: ugli::IntoVertexBufferSlice<'a, Vertex>>(
         &self,
         framebuffer: &mut ugli::Framebuffer,
         camera: &Camera,
-        vertices: &ugli::VertexBuffer<Vertex>,
-        instances: &ugli::VertexBuffer<Instance>,
+        vertices: V,
+        instances: &'a ugli::VertexBuffer<Instance>,
     ) {
         self.draw_with(&self.program, framebuffer, camera, vertices, instances);
     }
-    pub fn draw_with(
+    pub fn draw_with<'a, V: ugli::IntoVertexBufferSlice<'a, Vertex>>(
         &self,
         program: &ugli::Program,
         framebuffer: &mut ugli::Framebuffer,
         camera: &Camera,
-        vertices: &ugli::VertexBuffer<Vertex>,
-        instances: &ugli::VertexBuffer<Instance>,
+        vertices: V,
+        instances: &'a ugli::VertexBuffer<Instance>,
     ) {
         let camera_uniforms = camera.uniforms(framebuffer);
         ugli::draw(
