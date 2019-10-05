@@ -72,7 +72,7 @@ impl Tile {
                     } else {
                         let options = [
                             (
-                                5,
+                                3,
                                 Self::Food {
                                     mutation: *mutation,
                                 },
