@@ -16,6 +16,15 @@ pub enum Stage {
     Moving,
 }
 
+impl Stage {
+    fn help(&self) -> &str {
+        match self {
+            Self::Start => "Use WASD to move around",
+            Self::Moving => "Try to break the wall",
+        }
+    }
+}
+
 pub struct Game {
     geng: Rc<Geng>,
     camera: Camera,
@@ -94,10 +103,26 @@ impl geng::State for Game {
             framebuffer,
             self.geng.window().mouse_pos().map(|x| x as f32),
         );
+        let help_pos = self.camera.screen_to_world(framebuffer, vec2(0.0, 0.0))
+            + vec2(self.camera.fov / 20.0, 0.0);
         self.primitive.text_bubble(
             framebuffer,
             &self.camera,
-            &self.text_at(mouse_pos),
+            "?",
+            help_pos,
+            self.camera.fov / 20.0,
+        );
+        let text = if (mouse_pos - help_pos - vec2(0.0, self.camera.fov * 3.0 / 40.0)).len()
+            < self.camera.fov / 20.0
+        {
+            self.stage.help().to_owned()
+        } else {
+            self.text_at(mouse_pos)
+        };
+        self.primitive.text_bubble(
+            framebuffer,
+            &self.camera,
+            &text,
             mouse_pos,
             self.camera.fov / 30.0,
         );

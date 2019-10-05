@@ -78,7 +78,7 @@ impl Primitive {
         size: f32,
     ) {
         let text_width = self.font.measure(text, 64.0).width() * size / 64.0;
-        let x_align = (clamp((pos.x - camera.center.x) / camera.fov, -1.0..=1.0) + 1.0) / 2.0;
+        let x_align = (clamp((pos.x - camera.center.x) / camera.fov * 2.0, -1.0..=1.0) + 1.0) / 2.0;
         let pos = vec2(pos.x - text_width * x_align, pos.y + size);
         let cnt = (text_width / size).ceil() as usize;
         let circles = (0..cnt).map(|i| {
