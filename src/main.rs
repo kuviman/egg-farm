@@ -68,6 +68,7 @@ impl Game {
 
 impl geng::State for Game {
     fn update(&mut self, delta_time: f64) {
+        self.player.stage = self.stage;
         let delta_time = delta_time as f32;
         self.camera.target_fov = if self.stage == Stage::Start {
             5.0
