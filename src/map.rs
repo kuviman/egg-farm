@@ -25,47 +25,44 @@ impl Map {
         primitive: &Primitive,
         stage: Stage,
     ) {
-        const BORDER_WIDTH: f32 = 0.1;
-        match stage {
-            Stage::Start => {}
-            _ => {
-                primitive.quad(
-                    framebuffer,
-                    &camera,
-                    AABB::pos_size(
-                        vec2(-BORDER_WIDTH, -BORDER_WIDTH),
-                        vec2(BORDER_WIDTH, self.size().y as f32 + 2.0 * BORDER_WIDTH),
-                    ),
-                    Color::BLACK,
-                );
-                primitive.quad(
-                    framebuffer,
-                    &camera,
-                    AABB::pos_size(
-                        vec2(-BORDER_WIDTH, -BORDER_WIDTH),
-                        vec2(self.size().x as f32 + 2.0 * BORDER_WIDTH, BORDER_WIDTH),
-                    ),
-                    Color::BLACK,
-                );
-                primitive.quad(
-                    framebuffer,
-                    &camera,
-                    AABB::pos_size(
-                        vec2(self.size().x as f32, -BORDER_WIDTH),
-                        vec2(BORDER_WIDTH, self.size().y as f32 + 2.0 * BORDER_WIDTH),
-                    ),
-                    Color::BLACK,
-                );
-                primitive.quad(
-                    framebuffer,
-                    &camera,
-                    AABB::pos_size(
-                        vec2(-BORDER_WIDTH, self.size().y as f32),
-                        vec2(self.size().x as f32 + 2.0 * BORDER_WIDTH, BORDER_WIDTH),
-                    ),
-                    Color::BLACK,
-                );
-            }
+        if stage > Stage::Start {
+            const BORDER_WIDTH: f32 = 0.1;
+            primitive.quad(
+                framebuffer,
+                &camera,
+                AABB::pos_size(
+                    vec2(-BORDER_WIDTH, -BORDER_WIDTH),
+                    vec2(BORDER_WIDTH, self.size().y as f32 + 2.0 * BORDER_WIDTH),
+                ),
+                Color::BLACK,
+            );
+            primitive.quad(
+                framebuffer,
+                &camera,
+                AABB::pos_size(
+                    vec2(-BORDER_WIDTH, -BORDER_WIDTH),
+                    vec2(self.size().x as f32 + 2.0 * BORDER_WIDTH, BORDER_WIDTH),
+                ),
+                Color::BLACK,
+            );
+            primitive.quad(
+                framebuffer,
+                &camera,
+                AABB::pos_size(
+                    vec2(self.size().x as f32, -BORDER_WIDTH),
+                    vec2(BORDER_WIDTH, self.size().y as f32 + 2.0 * BORDER_WIDTH),
+                ),
+                Color::BLACK,
+            );
+            primitive.quad(
+                framebuffer,
+                &camera,
+                AABB::pos_size(
+                    vec2(-BORDER_WIDTH, self.size().y as f32),
+                    vec2(self.size().x as f32 + 2.0 * BORDER_WIDTH, BORDER_WIDTH),
+                ),
+                Color::BLACK,
+            );
         }
     }
 }

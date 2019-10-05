@@ -10,7 +10,7 @@ use map::*;
 use player::*;
 use primitive::*;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
 pub enum Stage {
     Start,
     Moving,
@@ -63,9 +63,10 @@ impl Game {
 impl geng::State for Game {
     fn update(&mut self, delta_time: f64) {
         let delta_time = delta_time as f32;
-        self.camera.target_fov = match self.stage {
-            Stage::Start => 5.0,
-            _ => max(self.map.size().x, self.map.size().y) as f32 + 5.0,
+        self.camera.target_fov = if self.stage == Stage::Start {
+            5.0
+        } else {
+            max(self.map.size().x, self.map.size().y) as f32 + 5.0
         };
         self.camera.update(delta_time);
         self.player.target_vel = vec2(0.0, 0.0);
@@ -85,13 +86,8 @@ impl geng::State for Game {
             self.player.target_vel = self.player.target_vel.normalize();
         }
         self.player.update(delta_time);
-        if (self.player.pos - self.camera.center).len() > 1.0 {
-            match self.stage {
-                Stage::Start => {
-                    self.stage = Stage::Moving;
-                }
-                _ => {}
-            }
+        if self.stage == Stage::Start && (self.player.pos - self.camera.center).len() > 1.0 {
+            self.stage = Stage::Moving;
         }
     }
     fn draw(&mut self, framebuffer: &mut ugli::Framebuffer) {
