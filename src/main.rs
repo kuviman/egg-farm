@@ -23,6 +23,9 @@ pub enum Stage {
     WaitForFood,
     Poop,
     PoopFertilize,
+    GrowWeed,
+    KillWeed,
+    Mutate,
 }
 
 impl Stage {
@@ -35,6 +38,9 @@ impl Stage {
             Self::WaitForFood => "Wait for food to be ready",
             Self::Poop => "If you eat you poop when jump on empty space",
             Self::PoopFertilize => "Poop can also fertilize soil",
+            Self::GrowWeed => "Try growing more food",
+            Self::KillWeed => "Getting rid of angry plants may require some thinking",
+            Self::Mutate => "This mutated root must be destroyed!",
         }
     }
 }
@@ -137,6 +143,20 @@ impl geng::State for Game {
         }
         if self.stage == Stage::Poop && self.map.find(|tile| *tile == Tile::Poop) > 0 {
             self.stage = Stage::PoopFertilize;
+        }
+        if self.stage == Stage::PoopFertilize && self.map.find(|tile| *tile == Tile::Poop) == 0 {
+            self.stage = Stage::GrowWeed;
+        }
+        if self.stage == Stage::GrowWeed
+            && self.map.find(|tile| match tile {
+                Tile::AngryWeed { .. } => true,
+                _ => false,
+            }) > 0
+        {
+            self.stage = Stage::KillWeed;
+        }
+        if self.stage == Stage::KillWeed && self.map.find(|tile| *tile == Tile::MutatedRoot) > 0 {
+            self.stage = Stage::Mutate;
         }
         if !self.player.eaten
             && self.map.tiles[self.player.pos.x as usize][self.player.pos.y as usize] == Tile::Food
