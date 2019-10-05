@@ -69,11 +69,21 @@ impl Tile {
                 }
             }
             Self::AngryWeed { time } => {
-                *time -= delta_time;
+                let player_dist = (pos.map(|x| x as f32 + 0.5) - player.pos).len();
+                if player_dist < 2.0 {
+                    let t = player_dist / player.max_speed / 2.0;
+                    if t > 1e-5 {
+                        *time -= (*time / t * delta_time).max(delta_time);
+                    } else {
+                        *time -= delta_time;
+                    }
+                } else {
+                    *time -= delta_time;
+                }
                 if *time < 0.0 {
                     *time = ANGRY_WEED_SHOOT_TIME;
                     let pos = pos.map(|x| x as f32 + 0.5);
-                    if (player.pos - pos).len() > 0.1 {
+                    if (player.pos - pos).len() > 1e-5 {
                         projectiles.push(Projectile::new(
                             pos,
                             0.2,
