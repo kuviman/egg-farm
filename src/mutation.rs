@@ -43,7 +43,8 @@ impl Mutation {
             color.b = color.b.max(other.b);
         }
         match (color.r > 0.5, color.g > 0.5, color.b > 0.5) {
-            (false, false, false) | (true, true, true) => None,
+            (false, false, false) => None,
+            (true, true, true) => Some(Self::RGB),
             (true, false, false) => Some(Self::Red),
             (false, true, false) => Some(Self::Green),
             (false, false, true) => Some(Self::Blue),
