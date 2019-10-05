@@ -39,18 +39,18 @@ impl Stage {
         match self {
             Self::Start => "Use WASD to move around",
             Self::Moving => "Try to break the wall",
-            Self::Born => "Space to jump",
+            Self::Born => "Use Space to jump",
             Self::ToCrush => "Crush the shell to fertilize soil",
-            Self::WaitForFood => "Wait for food to be ready",
-            Self::Poop => "If you eat you poop when jump on empty space",
-            Self::PoopFertilize => "Poop can also fertilize soil",
-            Self::GrowWeed => "Try growing more food",
-            Self::KillWeed => "Getting rid of angry plants may require some thinking",
+            Self::WaitForFood => "Fertilized soil will grow something eventually",
+            Self::Poop => "Pooping is unavoidable if you jump on empty space after eating",
+            Self::PoopFertilize => "Poop can also be used as fertilizer",
+            Self::GrowWeed => "More food! More poop! More!",
+            Self::KillWeed => "Getting rid of angry plants may require planting more",
             Self::Mutate => "This mutated root must be destroyed!",
-            Self::GrowMutation => "Maybe mutation should be grown...",
-            Self::KillMutated => "Mutated weed can only be damaged by same type",
+            Self::GrowMutation => "Maybe mutation should be spread, make life more colorful",
+            Self::KillMutated => "Well, you've done this before",
             Self::KillAll => "Collect all tropheys. Mix colors if needed",
-            Self::Win => "You WON! Congrats! press R to play again",
+            Self::Win => "You WON! Congrats! Make screenshot, or nobody will believe you!",
         }
     }
 }
