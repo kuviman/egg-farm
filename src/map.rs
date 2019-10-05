@@ -4,12 +4,11 @@ use super::*;
 pub enum Tile {
     Nothing,
     BrokenShell,
-    CrushedShell { time: f32 },
+    CrushedShell,
     FertilizedSoil { time: f32 },
     Food,
 }
 
-const CRUSHED_SHELL_TIME: f32 = 10.0;
 const FERTILIZED_SOIL_TIME: f32 = 10.0;
 
 impl Tile {
@@ -17,22 +16,13 @@ impl Tile {
         match self {
             Self::Nothing => "Nothing".to_owned(),
             Self::BrokenShell => "Broken shell".to_owned(),
-            Self::CrushedShell { .. } => "Crushed shell".to_owned(),
+            Self::CrushedShell => "Crushed shell".to_owned(),
             Self::FertilizedSoil { .. } => "Fertilized soil".to_owned(),
             Self::Food => "Food".to_owned(),
         }
     }
     fn update(&mut self, delta_time: f32) -> bool {
         match self {
-            Self::CrushedShell { time } => {
-                *time -= delta_time;
-                if *time <= 0.0 {
-                    *self = Self::FertilizedSoil {
-                        time: FERTILIZED_SOIL_TIME,
-                    };
-                    return true;
-                }
-            }
             Self::FertilizedSoil { time } => {
                 *time -= delta_time;
                 if *time <= 0.0 {
@@ -47,8 +37,12 @@ impl Tile {
     fn handle_land(&mut self) -> bool {
         match self {
             Self::BrokenShell => {
-                *self = Self::CrushedShell {
-                    time: CRUSHED_SHELL_TIME,
+                *self = Self::CrushedShell;
+                return true;
+            }
+            Self::CrushedShell => {
+                *self = Self::FertilizedSoil {
+                    time: FERTILIZED_SOIL_TIME,
                 };
                 return true;
             }
@@ -196,7 +190,7 @@ impl Map {
                             Color::BLACK,
                         );
                     }
-                    Tile::CrushedShell { time } => {
+                    Tile::CrushedShell => {
                         for &dv in &[
                             vec2(0.3, 0.3),
                             vec2(0.7, 0.7),
@@ -208,10 +202,7 @@ impl Map {
                             primitive.quad(
                                 framebuffer,
                                 camera,
-                                AABB::pos_size(
-                                    vec2(x as f32, y as f32) + dv,
-                                    vec2(1.0, 1.0) * (*time / CRUSHED_SHELL_TIME + 1.0) * 0.05,
-                                ),
+                                AABB::pos_size(vec2(x as f32, y as f32) + dv, vec2(0.1, 0.1)),
                                 Color::BLACK,
                             );
                         }
