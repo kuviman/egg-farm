@@ -20,6 +20,9 @@ pub enum Tile {
         mutation: Option<Mutation>,
     },
     MutatedRoot,
+    Trophey {
+        mutation: Mutation,
+    },
 }
 
 struct SharedState {
@@ -30,6 +33,12 @@ pub const ANGRY_WEED_SHOOT_TIME: f32 = 3.0;
 pub const FERTILIZED_SOIL_TIME: f32 = 5.0;
 
 impl Tile {
+    pub fn is_trophey(&self) -> bool {
+        match self {
+            Self::Trophey { .. } => true,
+            _ => false,
+        }
+    }
     pub fn is_food(&self) -> bool {
         match self {
             Self::Food { .. } => true,
@@ -52,6 +61,7 @@ impl Tile {
             Self::Poop { .. } => "Poop".to_owned(),
             Self::AngryWeed { .. } => "Angry weed".to_owned(),
             Self::MutatedRoot => "Mutated root".to_owned(),
+            Self::Trophey { .. } => "Trophey".to_owned(),
         }
     }
     fn update(
@@ -156,6 +166,10 @@ impl Tile {
                 player.mutation = global_rng().gen::<Mutation>().mix(player.mutation);
                 return Some(Some(Mutation::RGB));
             }
+            Self::Trophey { mutation } => {
+                player.tropheys.insert(*mutation);
+                *self = Self::Nothing;
+            }
             _ => {}
         }
         None
@@ -163,7 +177,11 @@ impl Tile {
     fn collide_projectile(&mut self, p: &mut Projectile) {
         match self {
             Self::AngryWeed { mutation, .. } if *mutation == p.mutation => {
-                *self = Self::MutatedRoot;
+                if let Some(mutation) = *mutation {
+                    *self = Self::Trophey { mutation };
+                } else {
+                    *self = Self::MutatedRoot;
+                }
                 p.alive = false;
             }
             _ => {}
@@ -495,6 +513,27 @@ impl Map {
                             vec2(x as f32 + 0.7, y as f32 + 0.6),
                             0.1,
                             Color::BLUE,
+                        );
+                    }
+                    Tile::Trophey { mutation } => {
+                        let center = vec2(x as f32 + 0.5, y as f32 + 0.5);
+                        primitive.circle(framebuffer, camera, center, 0.4, Color::BLACK);
+                        primitive.circle(framebuffer, camera, center, 0.3, mutation.color());
+                        primitive.line(
+                            framebuffer,
+                            camera,
+                            center + vec2(-0.3, 0.0),
+                            center + vec2(0.3, 0.0),
+                            0.1,
+                            Color::BLACK,
+                        );
+                        primitive.line(
+                            framebuffer,
+                            camera,
+                            center + vec2(0.0, -0.3),
+                            center + vec2(0.0, 0.3),
+                            0.1,
+                            Color::BLACK,
                         );
                     }
                 }

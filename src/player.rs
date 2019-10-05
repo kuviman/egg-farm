@@ -15,6 +15,7 @@ pub struct Player {
     pub eaten: bool,
     pub alive: bool,
     pub mutation: Option<Mutation>,
+    pub tropheys: HashSet<Mutation>,
 }
 
 impl Player {
@@ -34,6 +35,7 @@ impl Player {
             eaten: false,
             alive: true,
             mutation: None,
+            tropheys: HashSet::new(),
         }
     }
     pub fn landed(&mut self) -> bool {
@@ -92,6 +94,28 @@ impl Player {
             radius *= 1.0 + (self.leg_walk_phase / 4.0).cos() * 0.1;
         }
         let mut pos_with_jump = self.pos;
+        for (i, &mutation) in [
+            Mutation::RGB,
+            Mutation::Red,
+            Mutation::Yellow,
+            Mutation::Green,
+            Mutation::Cyan,
+            Mutation::Blue,
+            Mutation::Purple,
+        ]
+        .iter()
+        .enumerate()
+        {
+            if self.tropheys.contains(&mutation) {
+                primitive.circle(
+                    framebuffer,
+                    camera,
+                    pos_with_jump + vec2(i as f32 / 6.0 * 2.0 - 1.0, 1.0) * self.radius,
+                    self.radius * 0.2,
+                    mutation.color(),
+                );
+            }
+        }
         if let Some(time) = self.jump {
             pos_with_jump.y += (1.0 - ((time - 0.5) * 2.0).powi(2)) * 0.5;
         }

@@ -28,7 +28,10 @@ pub enum Stage {
     GrowWeed,
     KillWeed,
     Mutate,
-    KillAllMutated,
+    GrowMutation,
+    KillMutated,
+    KillAll,
+    Win,
 }
 
 impl Stage {
@@ -44,7 +47,10 @@ impl Stage {
             Self::GrowWeed => "Try growing more food",
             Self::KillWeed => "Getting rid of angry plants may require some thinking",
             Self::Mutate => "This mutated root must be destroyed!",
-            Self::KillAllMutated => "Maybe mutation should be grown, not destroyed...",
+            Self::GrowMutation => "Maybe mutation should be grown...",
+            Self::KillMutated => "Mutated weed can only be damaged by same type",
+            Self::KillAll => "Collect all tropheys. Mix colors if needed",
+            Self::Win => "You WON! Congrats! press R to play again",
         }
     }
 }
@@ -94,13 +100,7 @@ impl geng::State for Game {
     fn update(&mut self, delta_time: f64) {
         self.player.stage = self.stage;
         let delta_time = delta_time as f32;
-        self.map.update(
-            delta_time,
-            &mut self.particles,
-            &mut self.projectiles,
-            &self.player,
-        );
-        self.camera.target_fov = if self.stage == Stage::Start {
+        self.camera.target_fov = if self.stage == Stage::Start || self.stage == Stage::Win {
             5.0
         } else {
             max(self.map.size().x, self.map.size().y) as f32
@@ -110,7 +110,19 @@ impl geng::State for Game {
                     2.0
                 }
         };
+        if self.stage == Stage::Win {
+            self.camera.center = self.player.pos;
+        }
         self.camera.update(delta_time);
+        if self.stage == Stage::Win {
+            return;
+        }
+        self.map.update(
+            delta_time,
+            &mut self.particles,
+            &mut self.projectiles,
+            &self.player,
+        );
         self.player.target_vel = vec2(0.0, 0.0);
         if self.geng.window().is_key_pressed(geng::Key::W) {
             self.player.target_vel.y += 1.0;
@@ -163,7 +175,21 @@ impl geng::State for Game {
             self.stage = Stage::Mutate;
         }
         if self.stage == Stage::Mutate && self.player.mutation.is_some() {
-            self.stage = Stage::KillAllMutated;
+            self.stage = Stage::GrowMutation;
+        }
+        if self.stage == Stage::GrowMutation
+            && self.map.find(|tile| match tile {
+                Tile::AngryWeed { mutation, .. } if mutation.is_some() => true,
+                _ => false,
+            }) > 0
+        {
+            self.stage = Stage::KillMutated;
+        }
+        if self.stage == Stage::KillMutated && self.map.find(|tile| tile.is_trophey()) > 0 {
+            self.stage = Stage::KillAll;
+        }
+        if self.player.tropheys.len() == 7 {
+            self.stage = Stage::Win;
         }
         if !self.player.eaten {
             if let Tile::Food { mutation } =
