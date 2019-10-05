@@ -83,5 +83,25 @@ impl Player {
             self.radius * 0.8,
             Color::WHITE,
         );
+
+        if self.stage >= Stage::Born {
+            const EYE_X: f32 = 0.3;
+            const EYE_Y: f32 = 0.3;
+            const EYE_RADIUS: f32 = 0.2;
+            primitive.circle(
+                framebuffer,
+                camera,
+                self.pos + vec2(EYE_X, EYE_Y) * self.radius,
+                self.radius * EYE_RADIUS,
+                Color::BLACK,
+            );
+            primitive.circle(
+                framebuffer,
+                camera,
+                self.pos + vec2(-EYE_X, EYE_Y) * self.radius,
+                self.radius * EYE_RADIUS,
+                Color::BLACK,
+            );
+        }
     }
 }
