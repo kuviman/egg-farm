@@ -89,13 +89,12 @@ impl geng::State for Game {
             framebuffer,
             self.geng.window().mouse_pos().map(|x| x as f32),
         );
-        self.primitive.text(
+        self.primitive.text_bubble(
             framebuffer,
             &self.camera,
             &self.text_at(mouse_pos),
             mouse_pos,
-            1.0,
-            Color::BLACK,
+            self.camera.fov / 30.0,
         );
     }
     fn handle_event(&mut self, event: geng::Event) {}

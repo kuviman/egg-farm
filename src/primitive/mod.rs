@@ -69,6 +69,30 @@ impl Primitive {
         let p2 = camera.world_to_screen(framebuffer, pos + vec2(0.0, size));
         self.font.draw(framebuffer, text, p1, p2.y - p1.y, color);
     }
+    pub fn text_bubble(
+        &self,
+        framebuffer: &mut ugli::Framebuffer,
+        camera: &Camera,
+        text: &str,
+        pos: Vec2<f32>,
+        size: f32,
+    ) {
+        let text_width = self.font.measure(text, 64.0).width() * size / 64.0;
+        let x_align = (clamp((pos.x - camera.center.x) / camera.fov, -1.0..=1.0) + 1.0) / 2.0;
+        let pos = vec2(pos.x - text_width * x_align, pos.y + size);
+        let cnt = (text_width / size).ceil() as usize;
+        let circles = (0..cnt).map(|i| {
+            let x = (i as f32 + 0.5) * text_width / cnt as f32;
+            (vec2(pos.x + x, pos.y + size / 2.0), size * 0.9)
+        });
+        for (pos, radius) in circles.clone() {
+            self.circle(framebuffer, camera, pos, radius, Color::BLACK);
+        }
+        for (pos, radius) in circles.clone() {
+            self.circle(framebuffer, camera, pos, radius * 0.9, Color::WHITE);
+        }
+        self.text(framebuffer, camera, text, pos, size, Color::BLACK);
+    }
     pub fn quad(
         &self,
         framebuffer: &mut ugli::Framebuffer,
