@@ -2,11 +2,13 @@ use geng::prelude::*;
 
 mod camera;
 mod map;
+mod particles;
 mod player;
 mod primitive;
 
 use camera::*;
 use map::*;
+use particles::*;
 use player::*;
 use primitive::*;
 
@@ -30,6 +32,7 @@ impl Stage {
 pub struct Game {
     geng: Rc<Geng>,
     camera: Camera,
+    particles: Particles,
     map: Map,
     player: Player,
     stage: Stage,
@@ -45,6 +48,7 @@ impl Game {
         Self {
             geng: geng.clone(),
             camera,
+            particles: Particles::new(),
             map,
             player,
             stage: Stage::Start,
@@ -111,16 +115,24 @@ impl geng::State for Game {
         }
         if fix_pos != self.player.pos {
             self.player.pos = fix_pos;
-            if self.stage == Stage::Moving {
+            if self.player.vel.len() > self.player.max_speed / 2.0 && self.stage == Stage::Moving {
+                self.player.vel = vec2(0.0, 0.0);
+                for _ in 0..10 {
+                    self.particles.spawn(self.player.pos, self.player.radius);
+                }
                 self.stage = Stage::Born;
             }
         }
+        self.particles.update(delta_time);
     }
     fn draw(&mut self, framebuffer: &mut ugli::Framebuffer) {
         ugli::clear(framebuffer, Some(Color::WHITE), None);
         self.map
             .draw(framebuffer, &self.camera, &self.primitive, self.stage);
         self.player.draw(framebuffer, &self.camera, &self.primitive);
+        self.particles
+            .draw(framebuffer, &self.camera, &self.primitive);
+
         let mouse_pos = self.camera.screen_to_world(
             framebuffer,
             self.geng.window().mouse_pos().map(|x| x as f32),
