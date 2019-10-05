@@ -168,7 +168,8 @@ impl geng::State for Game {
                 };
         }
         if self.player.landed() {
-            self.map.land(self.player.pos, &mut self.particles);
+            self.map
+                .land(self.player.pos, &mut self.particles, &mut self.player);
             if self.player.eaten
                 && self.map.tiles[self.player.pos.x as usize][self.player.pos.y as usize]
                     == Tile::Nothing

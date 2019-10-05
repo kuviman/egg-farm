@@ -98,7 +98,7 @@ impl Tile {
         }
         false
     }
-    fn handle_land(&mut self) -> bool {
+    fn handle_land(&mut self, player: &mut Player) -> bool {
         match self {
             Self::BrokenShell => {
                 *self = Self::CrushedShell;
@@ -112,6 +112,11 @@ impl Tile {
             }
             Self::FertilizedSoil { .. } => {
                 *self = Self::Nothing;
+                return true;
+            }
+            Self::MutatedRoot => {
+                *self = Self::Nothing;
+                player.mutation = Some(global_rng().gen_range(0, 3));
                 return true;
             }
             _ => {}
@@ -156,9 +161,9 @@ impl Map {
     pub fn size(&self) -> Vec2<usize> {
         vec2(self.tiles.len(), self.tiles[0].len())
     }
-    pub fn land(&mut self, pos: Vec2<f32>, particles: &mut Particles) {
+    pub fn land(&mut self, pos: Vec2<f32>, particles: &mut Particles, player: &mut Player) {
         let pos = pos.map(|x| x as usize);
-        if self.tiles[pos.x][pos.y].handle_land() {
+        if self.tiles[pos.x][pos.y].handle_land(player) {
             particles.boom(pos.map(|x| x as f32 + 0.5));
         }
     }

@@ -14,6 +14,7 @@ pub struct Player {
     pub landed: bool,
     pub eaten: bool,
     pub alive: bool,
+    pub mutation: Option<usize>,
 }
 
 impl Player {
@@ -32,6 +33,7 @@ impl Player {
             landed: false,
             eaten: false,
             alive: true,
+            mutation: None,
         }
     }
     pub fn landed(&mut self) -> bool {
@@ -121,7 +123,13 @@ impl Player {
             camera,
             pos_with_jump,
             radius * 0.8,
-            Color::WHITE,
+            match self.mutation {
+                None => Color::WHITE,
+                Some(0) => Color::RED,
+                Some(1) => Color::GREEN,
+                Some(2) => Color::BLUE,
+                _ => unreachable!(),
+            },
         );
 
         if self.stage >= Stage::Born {
