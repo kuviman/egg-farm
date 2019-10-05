@@ -28,6 +28,7 @@ pub enum Stage {
     GrowWeed,
     KillWeed,
     Mutate,
+    KillAllMutated,
 }
 
 impl Stage {
@@ -43,6 +44,7 @@ impl Stage {
             Self::GrowWeed => "Try growing more food",
             Self::KillWeed => "Getting rid of angry plants may require some thinking",
             Self::Mutate => "This mutated root must be destroyed!",
+            Self::KillAllMutated => "Maybe mutation should be grown, not destroyed...",
         }
     }
 }
@@ -159,6 +161,9 @@ impl geng::State for Game {
         }
         if self.stage == Stage::KillWeed && self.map.find(|tile| *tile == Tile::MutatedRoot) > 0 {
             self.stage = Stage::Mutate;
+        }
+        if self.stage == Stage::Mutate && self.player.mutation.is_some() {
+            self.stage = Stage::KillAllMutated;
         }
         if !self.player.eaten
             && self.map.tiles[self.player.pos.x as usize][self.player.pos.y as usize] == Tile::Food
