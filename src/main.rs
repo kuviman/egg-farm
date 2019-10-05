@@ -201,7 +201,17 @@ impl geng::State for Game {
             self.camera.fov / 30.0,
         );
     }
-    fn handle_event(&mut self, event: geng::Event) {}
+    fn handle_event(&mut self, event: geng::Event) {
+        match event {
+            geng::Event::KeyDown { key } => match key {
+                geng::Key::Space => {
+                    self.player.want_jump = true;
+                }
+                _ => {}
+            },
+            _ => {}
+        }
+    }
 }
 
 fn main() {
