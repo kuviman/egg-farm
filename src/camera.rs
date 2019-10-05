@@ -1,8 +1,8 @@
 use super::*;
 
 pub struct Camera {
-    center: Vec2<f32>,
-    fov: f32,
+    pub center: Vec2<f32>,
+    pub fov: f32,
 }
 
 impl Camera {
