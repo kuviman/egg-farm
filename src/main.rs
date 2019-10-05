@@ -2,16 +2,19 @@ use geng::prelude::*;
 
 mod camera;
 mod map;
+mod player;
 mod primitive;
 
 use camera::*;
 use map::*;
+use player::*;
 use primitive::*;
 
 struct Game {
     geng: Rc<Geng>,
     camera: Camera,
     map: Map,
+    player: Player,
     primitive: Primitive,
 }
 
@@ -20,10 +23,12 @@ impl Game {
         let map = Map::new();
         let mut camera = Camera::new(max(map.size().x, map.size().y) as f32 + 5.0);
         camera.center = map.size().map(|x| x as f32) / 2.0;
+        let player = Player::new(camera.center);
         Self {
             geng: geng.clone(),
             camera,
             map,
+            player,
             primitive: Primitive::new(geng),
         }
     }
@@ -70,10 +75,7 @@ impl geng::State for Game {
             ),
             Color::BLACK,
         );
-        self.primitive
-            .circle(framebuffer, &self.camera, vec2(0.0, 0.0), 0.5, Color::BLACK);
-        self.primitive
-            .circle(framebuffer, &self.camera, vec2(0.0, 0.0), 0.4, Color::WHITE);
+        self.player.draw(framebuffer, &self.camera, &self.primitive);
     }
     fn handle_event(&mut self, event: geng::Event) {}
 }
