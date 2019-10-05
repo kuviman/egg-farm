@@ -14,6 +14,7 @@ use primitive::*;
 pub enum Stage {
     Start,
     Moving,
+    Born,
 }
 
 impl Stage {
@@ -21,6 +22,7 @@ impl Stage {
         match self {
             Self::Start => "Use WASD to move around",
             Self::Moving => "Try to break the wall",
+            Self::Born => "Space to jump",
         }
     }
 }
@@ -66,7 +68,12 @@ impl geng::State for Game {
         self.camera.target_fov = if self.stage == Stage::Start {
             5.0
         } else {
-            max(self.map.size().x, self.map.size().y) as f32 + 5.0
+            max(self.map.size().x, self.map.size().y) as f32
+                + if self.stage == Stage::Moving {
+                    5.0
+                } else {
+                    2.0
+                }
         };
         self.camera.update(delta_time);
         self.player.target_vel = vec2(0.0, 0.0);
@@ -88,6 +95,25 @@ impl geng::State for Game {
         self.player.update(delta_time);
         if self.stage == Stage::Start && (self.player.pos - self.camera.center).len() > 1.0 {
             self.stage = Stage::Moving;
+        }
+        let mut fix_pos = self.player.pos;
+        if fix_pos.x < self.player.radius {
+            fix_pos.x = self.player.radius;
+        }
+        if fix_pos.y < self.player.radius {
+            fix_pos.y = self.player.radius;
+        }
+        if fix_pos.x > self.map.size().x as f32 - self.player.radius {
+            fix_pos.x = self.map.size().x as f32 - self.player.radius;
+        }
+        if fix_pos.y > self.map.size().y as f32 - self.player.radius {
+            fix_pos.y = self.map.size().y as f32 - self.player.radius;
+        }
+        if fix_pos != self.player.pos {
+            self.player.pos = fix_pos;
+            if self.stage == Stage::Moving {
+                self.stage = Stage::Born;
+            }
         }
     }
     fn draw(&mut self, framebuffer: &mut ugli::Framebuffer) {
