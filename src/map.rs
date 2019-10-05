@@ -112,13 +112,19 @@ impl Tile {
                 }
                 if *time < 0.0 {
                     *time = ANGRY_WEED_SHOOT_TIME;
-                    let pos = pos.map(|x| x as f32 + 0.5);
-                    if (player.pos - pos).len() > 1e-5 {
-                        projectiles.push(Projectile::new(
-                            pos,
-                            0.2,
-                            (player.pos - pos).normalize() * 10.0,
-                        ));
+                    match mutation {
+                        None => {
+                            let pos = pos.map(|x| x as f32 + 0.5);
+                            if (player.pos - pos).len() > 1e-5 {
+                                projectiles.push(Projectile::new(
+                                    pos,
+                                    0.2,
+                                    (player.pos - pos).normalize() * 5.0,
+                                ));
+                            }
+                        }
+                        Some(_) => { //TODO
+                        }
                     }
                 }
             }
