@@ -5,12 +5,14 @@ mod map;
 mod particles;
 mod player;
 mod primitive;
+mod projectile;
 
 use camera::*;
 use map::*;
 use particles::*;
 use player::*;
 use primitive::*;
+use projectile::*;
 
 #[derive(Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
 pub enum Stage {
@@ -45,6 +47,7 @@ pub struct Game {
     player: Player,
     stage: Stage,
     primitive: Primitive,
+    projectiles: Vec<Projectile>,
 }
 
 impl Game {
@@ -61,6 +64,7 @@ impl Game {
             player,
             stage: Stage::Start,
             primitive: Primitive::new(geng),
+            projectiles: Vec::new(),
         }
     }
     fn text_at(&self, pos: Vec2<f32>) -> String {
@@ -78,7 +82,12 @@ impl geng::State for Game {
     fn update(&mut self, delta_time: f64) {
         self.player.stage = self.stage;
         let delta_time = delta_time as f32;
-        self.map.update(delta_time, &mut self.particles);
+        self.map.update(
+            delta_time,
+            &mut self.particles,
+            &mut self.projectiles,
+            &self.player,
+        );
         self.camera.target_fov = if self.stage == Stage::Start {
             5.0
         } else {
@@ -209,6 +218,18 @@ impl geng::State for Game {
             self.player.vel = vec2(0.0, 0.0);
         }
         self.particles.update(delta_time);
+        for p in &mut self.projectiles {
+            p.update(delta_time);
+            if p.pos.x < 0.0
+                || p.pos.y < 0.0
+                || p.pos.x >= self.map.size().x as f32
+                || p.pos.y >= self.map.size().y as f32
+            {
+                p.alive = false;
+                self.particles.boom(p.pos);
+            }
+        }
+        self.projectiles.retain(|p| p.alive);
     }
     fn draw(&mut self, framebuffer: &mut ugli::Framebuffer) {
         ugli::clear(framebuffer, Some(Color::WHITE), None);
@@ -234,6 +255,9 @@ impl geng::State for Game {
                 None
             },
         );
+        for p in &self.projectiles {
+            p.draw(framebuffer, &self.camera, &self.primitive);
+        }
         self.particles
             .draw(framebuffer, &self.camera, &self.primitive);
 

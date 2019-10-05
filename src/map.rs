@@ -8,8 +8,14 @@ pub enum Tile {
     FertilizedSoil { time: f32 },
     Food,
     Poop,
+    AngryWeed { time: f32 },
 }
 
+struct SharedState {
+    peace: usize,
+}
+
+pub const ANGRY_WEED_SHOOT_TIME: f32 = 3.0;
 pub const FERTILIZED_SOIL_TIME: f32 = 10.0;
 
 impl Tile {
@@ -21,15 +27,59 @@ impl Tile {
             Self::FertilizedSoil { .. } => "Fertilized soil".to_owned(),
             Self::Food => "Food".to_owned(),
             Self::Poop => "Poop".to_owned(),
+            Self::AngryWeed { .. } => "Angry weed".to_owned(),
         }
     }
-    fn update(&mut self, delta_time: f32) -> bool {
+    fn update(
+        &mut self,
+        delta_time: f32,
+        shared: &mut SharedState,
+        pos: Vec2<usize>,
+        projectiles: &mut Vec<Projectile>,
+        player: &Player,
+    ) -> bool {
         match self {
             Self::FertilizedSoil { time } => {
                 *time -= delta_time;
                 if *time <= 0.0 {
-                    *self = Self::Food;
+                    if shared.peace > 0 {
+                        shared.peace -= 1;
+                        *self = Self::Food;
+                    } else {
+                        let options = [
+                            (5, Self::Food),
+                            (
+                                1,
+                                Self::AngryWeed {
+                                    time: ANGRY_WEED_SHOOT_TIME,
+                                },
+                            ),
+                        ];
+                        let mut rand =
+                            global_rng().gen_range(0, options.iter().map(|&(w, _)| w).sum::<i32>());
+                        for &(w, option) in &options {
+                            if rand < w {
+                                *self = option;
+                                break;
+                            }
+                            rand -= w;
+                        }
+                    }
                     return true;
+                }
+            }
+            Self::AngryWeed { time } => {
+                *time -= delta_time;
+                if *time < 0.0 {
+                    *time = ANGRY_WEED_SHOOT_TIME;
+                    let pos = pos.map(|x| x as f32 + 0.5);
+                    if (player.pos - pos).len() > 0.1 {
+                        projectiles.push(Projectile::new(
+                            pos,
+                            0.2,
+                            (player.pos - pos).normalize() * 10.0,
+                        ));
+                    }
                 }
             }
             _ => {}
@@ -42,7 +92,7 @@ impl Tile {
                 *self = Self::CrushedShell;
                 return true;
             }
-            Self::CrushedShell | Self::Poop | Self::Food => {
+            Self::CrushedShell | Self::Poop | Self::Food | Self::AngryWeed { .. } => {
                 *self = Self::FertilizedSoil {
                     time: FERTILIZED_SOIL_TIME,
                 };
@@ -60,6 +110,7 @@ impl Tile {
 
 pub struct Map {
     pub tiles: Vec<Vec<Tile>>,
+    shared: SharedState,
 }
 
 impl Map {
@@ -78,6 +129,7 @@ impl Map {
         let size = vec2(16, 16);
         Self {
             tiles: vec![vec![Tile::Nothing; size.y]; size.x],
+            shared: SharedState { peace: 3 },
         }
     }
     pub fn size(&self) -> Vec2<usize> {
@@ -108,10 +160,22 @@ impl Map {
             Some(tile) => Some(tile.text()),
         }
     }
-    pub fn update(&mut self, delta_time: f32, particles: &mut Particles) {
+    pub fn update(
+        &mut self,
+        delta_time: f32,
+        particles: &mut Particles,
+        projectiles: &mut Vec<Projectile>,
+        player: &Player,
+    ) {
         for (x, row) in self.tiles.iter_mut().enumerate() {
             for (y, tile) in row.iter_mut().enumerate() {
-                if tile.update(delta_time) {
+                if tile.update(
+                    delta_time,
+                    &mut self.shared,
+                    vec2(x, y),
+                    projectiles,
+                    player,
+                ) {
                     particles.boom(vec2(x as f32 + 0.5, y as f32 + 0.5));
                 }
             }
@@ -259,7 +323,7 @@ impl Map {
                             vec2(x as f32 + 0.5, y as f32 + 0.9),
                             0.1,
                             Color::BLACK,
-                        )
+                        );
                     }
                     Tile::Poop => {
                         let pos = vec2(x as f32, y as f32);
@@ -278,6 +342,50 @@ impl Map {
                         }
                         for &(pos, radius) in &circles {
                             primitive.circle(framebuffer, camera, pos, radius - 0.1, Color::WHITE);
+                        }
+                    }
+                    Tile::AngryWeed { time } => {
+                        primitive.circle(
+                            framebuffer,
+                            camera,
+                            vec2(x as f32 + 0.5, y as f32 + 0.5),
+                            0.3,
+                            Color::BLACK,
+                        );
+                        primitive.circle(
+                            framebuffer,
+                            camera,
+                            vec2(x as f32 + 0.5, y as f32 + 0.5),
+                            0.2,
+                            Color::WHITE,
+                        );
+                        primitive.line(
+                            framebuffer,
+                            camera,
+                            vec2(x as f32 + 0.5, y as f32 + 0.25),
+                            vec2(x as f32 + 0.5, y as f32 + 0.1),
+                            0.1,
+                            Color::BLACK,
+                        );
+                        let mut ps = [
+                            vec2(0.3, 0.5),
+                            vec2(0.4, 0.4),
+                            vec2(0.5, 0.5),
+                            vec2(0.6, 0.4),
+                            vec2(0.7, 0.5),
+                        ];
+                        for p in &mut ps {
+                            p.y = 0.4 + (p.y - 0.4) * (1.0 - *time / ANGRY_WEED_SHOOT_TIME);
+                        }
+                        for ps in ps.windows(2) {
+                            primitive.line(
+                                framebuffer,
+                                camera,
+                                vec2(x as f32, y as f32) + ps[0],
+                                vec2(x as f32, y as f32) + ps[1],
+                                0.05,
+                                Color::BLACK,
+                            );
                         }
                     }
                 }
