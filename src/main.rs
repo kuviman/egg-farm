@@ -117,7 +117,6 @@ impl geng::State for Game {
         if fix_pos != self.player.pos {
             self.player.pos = fix_pos;
             if self.player.vel.len() > self.player.max_speed / 2.0 && self.stage == Stage::Moving {
-                self.player.vel = vec2(0.0, 0.0);
                 for _ in 0..10 {
                     self.particles.spawn(self.player.pos, self.player.radius);
                 }
@@ -137,15 +136,32 @@ impl geng::State for Game {
                 }
                 use rand::seq::SliceRandom;
                 shell_pos.shuffle(&mut global_rng());
-                for pos in shell_pos.into_iter().take(3) {
-                    self.map.tiles[pos.x][pos.y] = Tile::BrokenShell;
-                    for _ in 0..5 {
-                        self.particles
-                            .spawn(pos.map(|x| x as f32 + 0.5), self.player.radius);
+                for pos in shell_pos {
+                    if self.map.tiles[pos.x][pos.y] == Tile::Nothing {
+                        self.map.tiles[pos.x][pos.y] = Tile::BrokenShell;
+                        for _ in 0..5 {
+                            self.particles
+                                .spawn(pos.map(|x| x as f32 + 0.5), self.player.radius);
+                        }
+                        break;
                     }
                 }
-                self.stage = Stage::Born;
+                if self
+                    .map
+                    .tiles
+                    .iter()
+                    .map(|row| {
+                        row.iter()
+                            .filter(|tile| **tile == Tile::BrokenShell)
+                            .count()
+                    })
+                    .sum::<usize>()
+                    == 3
+                {
+                    self.stage = Stage::Born;
+                }
             }
+            self.player.vel = vec2(0.0, 0.0);
         }
         self.particles.update(delta_time);
     }

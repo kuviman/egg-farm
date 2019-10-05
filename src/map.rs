@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Tile {
     Nothing,
     BrokenShell,
