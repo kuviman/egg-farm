@@ -4,6 +4,45 @@ use super::*;
 pub enum Tile {
     Nothing,
     BrokenShell,
+    CrushedShell { time: f32 },
+    FertilizedSoil { time: f32 },
+}
+
+const CRUSHED_SHELL_TIME: f32 = 10.0;
+const FERTILIZED_SOIL_TIME: f32 = 10.0;
+
+impl Tile {
+    fn text(&self) -> String {
+        match self {
+            Self::Nothing => "Nothing".to_owned(),
+            Self::BrokenShell => "Broken shell".to_owned(),
+            Self::CrushedShell { .. } => "Crushed shell".to_owned(),
+            Self::FertilizedSoil { .. } => "Fertilized soil".to_owned(),
+        }
+    }
+    fn update(&mut self, delta_time: f32) {
+        match self {
+            Self::CrushedShell { time } => {
+                *time -= delta_time;
+                if *time <= 0.0 {
+                    *self = Self::FertilizedSoil {
+                        time: FERTILIZED_SOIL_TIME,
+                    };
+                }
+            }
+            _ => {}
+        }
+    }
+    fn handle_land(&mut self) {
+        match self {
+            Self::BrokenShell => {
+                *self = Self::CrushedShell {
+                    time: CRUSHED_SHELL_TIME,
+                }
+            }
+            _ => {}
+        }
+    }
 }
 
 pub struct Map {
@@ -19,6 +58,10 @@ impl Map {
     }
     pub fn size(&self) -> Vec2<usize> {
         vec2(self.tiles.len(), self.tiles[0].len())
+    }
+    pub fn land(&mut self, pos: Vec2<f32>) {
+        let pos = pos.map(|x| x as usize);
+        self.tiles[pos.x][pos.y].handle_land();
     }
     pub fn text_at(&self, pos: Vec2<f32>) -> Option<String> {
         fn close(pos: f32, size: usize) -> bool {
@@ -36,7 +79,14 @@ impl Map {
                     None
                 }
             }
-            Some(Tile::BrokenShell) => Some("Broken shell".to_owned()),
+            Some(tile) => Some(tile.text()),
+        }
+    }
+    pub fn update(&mut self, delta_time: f32) {
+        for row in &mut self.tiles {
+            for tile in row {
+                tile.update(delta_time);
+            }
         }
     }
     pub fn draw(
@@ -128,6 +178,39 @@ impl Map {
                             0.1,
                             Color::BLACK,
                         );
+                    }
+                    Tile::CrushedShell { time } => {
+                        for &dv in &[
+                            vec2(0.3, 0.3),
+                            vec2(0.7, 0.7),
+                            vec2(0.6, 0.3),
+                            vec2(0.4, 0.7),
+                            vec2(0.4, 0.5),
+                            vec2(0.8, 0.5),
+                        ] {
+                            primitive.quad(
+                                framebuffer,
+                                camera,
+                                AABB::pos_size(
+                                    vec2(x as f32, y as f32) + dv,
+                                    vec2(1.0, 1.0) * (*time / CRUSHED_SHELL_TIME + 1.0) * 0.05,
+                                ),
+                                Color::BLACK,
+                            );
+                        }
+                    }
+                    Tile::FertilizedSoil { .. } => {
+                        for &dv in &[vec2(0.2, 0.5), vec2(0.3, 0.3), vec2(0.5, 0.2)] {
+                            let pos = vec2(x as f32, y as f32) + dv;
+                            primitive.line(
+                                framebuffer,
+                                camera,
+                                pos,
+                                pos + vec2(0.4, 0.3),
+                                0.1,
+                                Color::BLACK,
+                            );
+                        }
                     }
                 }
             }

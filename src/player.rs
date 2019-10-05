@@ -11,6 +11,7 @@ pub struct Player {
     pub stand_timer: f32,
     pub jump: Option<f32>,
     pub want_jump: bool,
+    pub landed: bool,
 }
 
 impl Player {
@@ -26,6 +27,15 @@ impl Player {
             stand_timer: 0.0,
             jump: None,
             want_jump: false,
+            landed: false,
+        }
+    }
+    pub fn landed(&mut self) -> bool {
+        if self.landed {
+            self.landed = false;
+            true
+        } else {
+            false
         }
     }
     pub fn update(&mut self, delta_time: f32) {
@@ -37,6 +47,7 @@ impl Player {
             let time_left = self.jump.unwrap() - delta_time * 3.0;
             if time_left < 0.0 {
                 self.jump = None;
+                self.landed = true;
             } else {
                 self.jump = Some(time_left);
             }
