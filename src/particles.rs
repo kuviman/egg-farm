@@ -4,13 +4,14 @@ struct Particle {
     pos: Vec2<f32>,
     size: f32,
     vel: Vec2<f32>,
+    speed: f32,
     t: f32,
 }
 
 impl Particle {
     fn update(&mut self, delta_time: f32) {
         self.pos += self.vel * delta_time * 2.0;
-        self.t += delta_time * 3.0;
+        self.t += self.speed * delta_time * 3.0;
     }
     fn radius(&self) -> f32 {
         self.size * (1.0 - (self.t - 1.0).powi(2))
@@ -35,6 +36,7 @@ impl Particles {
                 vec2(size, 0.0),
                 global_rng().gen_range(0.0, 2.0 * std::f32::consts::PI),
             ),
+            speed: global_rng().gen_range(1.0, 2.0),
             t: 0.0,
         })
     }
