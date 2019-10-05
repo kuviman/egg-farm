@@ -2,6 +2,7 @@ use geng::prelude::*;
 
 mod camera;
 mod map;
+mod mutation;
 mod particles;
 mod player;
 mod primitive;
@@ -9,6 +10,7 @@ mod projectile;
 
 use camera::*;
 use map::*;
+use mutation::*;
 use particles::*;
 use player::*;
 use primitive::*;

@@ -14,7 +14,7 @@ pub struct Player {
     pub landed: bool,
     pub eaten: bool,
     pub alive: bool,
-    pub mutation: Option<usize>,
+    pub mutation: Option<Mutation>,
 }
 
 impl Player {
@@ -123,13 +123,7 @@ impl Player {
             camera,
             pos_with_jump,
             radius * 0.8,
-            match self.mutation {
-                None => Color::WHITE,
-                Some(0) => Color::RED,
-                Some(1) => Color::GREEN,
-                Some(2) => Color::BLUE,
-                _ => unreachable!(),
-            },
+            self.mutation.map_or(Color::WHITE, |m| m.color()),
         );
 
         if self.stage >= Stage::Born {

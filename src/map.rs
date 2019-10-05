@@ -116,7 +116,7 @@ impl Tile {
             }
             Self::MutatedRoot => {
                 *self = Self::Nothing;
-                player.mutation = Some(global_rng().gen_range(0, 3));
+                player.mutation = Some(global_rng().gen());
                 return true;
             }
             _ => {}
