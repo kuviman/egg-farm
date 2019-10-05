@@ -6,6 +6,7 @@ pub enum Tile {
     BrokenShell,
     CrushedShell { time: f32 },
     FertilizedSoil { time: f32 },
+    Food,
 }
 
 const CRUSHED_SHELL_TIME: f32 = 10.0;
@@ -18,6 +19,7 @@ impl Tile {
             Self::BrokenShell => "Broken shell".to_owned(),
             Self::CrushedShell { .. } => "Crushed shell".to_owned(),
             Self::FertilizedSoil { .. } => "Fertilized soil".to_owned(),
+            Self::Food => "Food".to_owned(),
         }
     }
     fn update(&mut self, delta_time: f32) {
@@ -28,6 +30,12 @@ impl Tile {
                     *self = Self::FertilizedSoil {
                         time: FERTILIZED_SOIL_TIME,
                     };
+                }
+            }
+            Self::FertilizedSoil { time } => {
+                *time -= delta_time;
+                if *time <= 0.0 {
+                    *self = Self::Food;
                 }
             }
             _ => {}
@@ -211,6 +219,30 @@ impl Map {
                                 Color::BLACK,
                             );
                         }
+                    }
+                    Tile::Food => {
+                        primitive.circle(
+                            framebuffer,
+                            camera,
+                            vec2(x as f32 + 0.5, y as f32 + 0.5),
+                            0.3,
+                            Color::BLACK,
+                        );
+                        primitive.circle(
+                            framebuffer,
+                            camera,
+                            vec2(x as f32 + 0.5, y as f32 + 0.5),
+                            0.2,
+                            Color::WHITE,
+                        );
+                        primitive.line(
+                            framebuffer,
+                            camera,
+                            vec2(x as f32 + 0.5, y as f32 + 0.75),
+                            vec2(x as f32 + 0.5, y as f32 + 0.9),
+                            0.1,
+                            Color::BLACK,
+                        )
                     }
                 }
             }
