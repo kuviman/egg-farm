@@ -59,6 +59,17 @@ pub struct Map {
 }
 
 impl Map {
+    pub fn find<F: Fn(&Tile) -> bool>(&self, f: F) -> usize {
+        let mut result = 0;
+        for row in &self.tiles {
+            for tile in row {
+                if f(tile) {
+                    result += 1;
+                }
+            }
+        }
+        result
+    }
     pub fn new() -> Self {
         let size = vec2(16, 16);
         Self {

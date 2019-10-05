@@ -17,6 +17,10 @@ pub enum Stage {
     Start,
     Moving,
     Born,
+    ToCrush,
+    WaitForFood,
+    Poop,
+    PoopFertilize,
 }
 
 impl Stage {
@@ -25,6 +29,10 @@ impl Stage {
             Self::Start => "Use WASD to move around",
             Self::Moving => "Try to break the wall",
             Self::Born => "Space to jump",
+            Self::ToCrush => "Crush the shell to fertilize soil",
+            Self::WaitForFood => "Wait for food to be ready",
+            Self::Poop => "If you eat you poop when jump on empty space",
+            Self::PoopFertilize => "Poop can also fertilize soil",
         }
     }
 }
@@ -99,6 +107,26 @@ impl geng::State for Game {
             self.player.target_vel = self.player.target_vel.normalize();
         }
         self.player.update(delta_time);
+        if self.stage == Stage::Born && self.player.jump.is_some() {
+            self.stage = Stage::ToCrush;
+        }
+        if self.stage == Stage::ToCrush
+            && self.map.find(|tile| {
+                if let Tile::FertilizedSoil { .. } = tile {
+                    true
+                } else {
+                    false
+                }
+            }) > 0
+        {
+            self.stage = Stage::WaitForFood;
+        }
+        if self.stage == Stage::WaitForFood && self.map.find(|tile| *tile == Tile::Food) > 0 {
+            self.stage = Stage::Poop;
+        }
+        if self.stage == Stage::Poop && self.map.find(|tile| *tile == Tile::Poop) > 0 {
+            self.stage = Stage::PoopFertilize;
+        }
         if !self.player.eaten
             && self.map.tiles[self.player.pos.x as usize][self.player.pos.y as usize] == Tile::Food
         {
