@@ -38,6 +38,11 @@ impl Particles {
             t: 0.0,
         })
     }
+    pub fn boom(&mut self, pos: Vec2<f32>) {
+        for _ in 0..10 {
+            self.spawn(pos, 0.4);
+        }
+    }
     pub fn update(&mut self, delta_time: f32) {
         for particle in &mut self.particles {
             particle.update(delta_time);

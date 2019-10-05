@@ -121,9 +121,7 @@ impl geng::State for Game {
         if fix_pos != self.player.pos {
             self.player.pos = fix_pos;
             if self.player.vel.len() > self.player.max_speed / 2.0 && self.stage == Stage::Moving {
-                for _ in 0..10 {
-                    self.particles.spawn(self.player.pos, self.player.radius);
-                }
+                self.particles.boom(self.player.pos);
                 let mut shell_pos = Vec::new();
                 for dx in -1..=1 {
                     for dy in -1..=1 {
@@ -143,10 +141,7 @@ impl geng::State for Game {
                 for pos in shell_pos {
                     if self.map.tiles[pos.x][pos.y] == Tile::Nothing {
                         self.map.tiles[pos.x][pos.y] = Tile::BrokenShell;
-                        for _ in 0..5 {
-                            self.particles
-                                .spawn(pos.map(|x| x as f32 + 0.5), self.player.radius);
-                        }
+                        self.particles.boom(pos.map(|x| x as f32 + 0.5));
                         break;
                     }
                 }
