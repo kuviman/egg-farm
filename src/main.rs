@@ -70,7 +70,7 @@ impl geng::State for Game {
     fn update(&mut self, delta_time: f64) {
         self.player.stage = self.stage;
         let delta_time = delta_time as f32;
-        self.map.update(delta_time);
+        self.map.update(delta_time, &mut self.particles);
         self.camera.target_fov = if self.stage == Stage::Start {
             5.0
         } else {
@@ -100,7 +100,7 @@ impl geng::State for Game {
         }
         self.player.update(delta_time);
         if self.player.landed() {
-            self.map.land(self.player.pos);
+            self.map.land(self.player.pos, &mut self.particles);
         }
         if self.stage == Stage::Start && (self.player.pos - self.camera.center).len() > 1.0 {
             self.stage = Stage::Moving;

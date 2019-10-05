@@ -22,7 +22,7 @@ impl Tile {
             Self::Food => "Food".to_owned(),
         }
     }
-    fn update(&mut self, delta_time: f32) {
+    fn update(&mut self, delta_time: f32) -> bool {
         match self {
             Self::CrushedShell { time } => {
                 *time -= delta_time;
@@ -30,26 +30,31 @@ impl Tile {
                     *self = Self::FertilizedSoil {
                         time: FERTILIZED_SOIL_TIME,
                     };
+                    return true;
                 }
             }
             Self::FertilizedSoil { time } => {
                 *time -= delta_time;
                 if *time <= 0.0 {
                     *self = Self::Food;
+                    return true;
                 }
             }
             _ => {}
         }
+        false
     }
-    fn handle_land(&mut self) {
+    fn handle_land(&mut self) -> bool {
         match self {
             Self::BrokenShell => {
                 *self = Self::CrushedShell {
                     time: CRUSHED_SHELL_TIME,
-                }
+                };
+                return true;
             }
             _ => {}
         }
+        false
     }
 }
 
@@ -67,9 +72,11 @@ impl Map {
     pub fn size(&self) -> Vec2<usize> {
         vec2(self.tiles.len(), self.tiles[0].len())
     }
-    pub fn land(&mut self, pos: Vec2<f32>) {
+    pub fn land(&mut self, pos: Vec2<f32>, particles: &mut Particles) {
         let pos = pos.map(|x| x as usize);
-        self.tiles[pos.x][pos.y].handle_land();
+        if self.tiles[pos.x][pos.y].handle_land() {
+            particles.boom(pos.map(|x| x as f32 + 0.5));
+        }
     }
     pub fn text_at(&self, pos: Vec2<f32>) -> Option<String> {
         fn close(pos: f32, size: usize) -> bool {
@@ -90,10 +97,12 @@ impl Map {
             Some(tile) => Some(tile.text()),
         }
     }
-    pub fn update(&mut self, delta_time: f32) {
-        for row in &mut self.tiles {
-            for tile in row {
-                tile.update(delta_time);
+    pub fn update(&mut self, delta_time: f32, particles: &mut Particles) {
+        for (x, row) in self.tiles.iter_mut().enumerate() {
+            for (y, tile) in row.iter_mut().enumerate() {
+                if tile.update(delta_time) {
+                    particles.boom(vec2(x as f32 + 0.5, y as f32 + 0.5));
+                }
             }
         }
     }
