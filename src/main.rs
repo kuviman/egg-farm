@@ -21,7 +21,7 @@ struct Game {
 impl Game {
     fn new(geng: &Rc<Geng>) -> Self {
         let map = Map::new();
-        let mut camera = Camera::new(max(map.size().x, map.size().y) as f32 + 5.0);
+        let mut camera = Camera::new(0.1);
         camera.center = map.size().map(|x| x as f32) / 2.0;
         let player = Player::new(camera.center);
         Self {
@@ -44,7 +44,11 @@ impl Game {
 }
 
 impl geng::State for Game {
-    fn update(&mut self, delta_time: f64) {}
+    fn update(&mut self, delta_time: f64) {
+        let delta_time = delta_time as f32;
+        self.camera.target_fov = max(self.map.size().x, self.map.size().y) as f32 + 5.0;
+        self.camera.update(delta_time);
+    }
     fn draw(&mut self, framebuffer: &mut ugli::Framebuffer) {
         ugli::clear(framebuffer, Some(Color::WHITE), None);
         const BORDER_WIDTH: f32 = 0.1;

@@ -3,6 +3,7 @@ use super::*;
 pub struct Camera {
     pub center: Vec2<f32>,
     pub fov: f32,
+    pub target_fov: f32,
 }
 
 impl Camera {
@@ -10,7 +11,11 @@ impl Camera {
         Self {
             center: vec2(0.0, 0.0),
             fov,
+            target_fov: fov,
         }
+    }
+    pub fn update(&mut self, delta_time: f32) {
+        self.fov += (self.target_fov - self.fov) * delta_time.min(1.0);
     }
     fn view_matrix(&self) -> Mat4<f32> {
         Mat4::scale_uniform(1.0 / self.fov) * Mat4::translate(-self.center.extend(0.0))
