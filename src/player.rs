@@ -62,6 +62,7 @@ impl Player {
         framebuffer: &mut ugli::Framebuffer,
         camera: &Camera,
         primitive: &Primitive,
+        brokes: Option<usize>,
     ) {
         let mut pos_with_jump = self.pos;
         if let Some(time) = self.jump {
@@ -124,6 +125,29 @@ impl Player {
                 self.radius * EYE_RADIUS,
                 Color::BLACK,
             );
+        }
+
+        if let Some(brokes) = brokes {
+            for i in 0..brokes {
+                let pos_with_jump =
+                    pos_with_jump + vec2(0.2 - i as f32 * 0.2, -0.2 + i as f32 * 0.2);
+                primitive.line(
+                    framebuffer,
+                    camera,
+                    pos_with_jump + vec2(-0.2, 0.2) * self.radius,
+                    pos_with_jump + vec2(-0.2, -0.2) * self.radius,
+                    self.radius * 0.2,
+                    Color::BLACK,
+                );
+                primitive.line(
+                    framebuffer,
+                    camera,
+                    pos_with_jump + vec2(0.3, -0.2) * self.radius,
+                    pos_with_jump + vec2(-0.3, -0.2) * self.radius,
+                    self.radius * 0.2,
+                    Color::BLACK,
+                );
+            }
         }
     }
 }

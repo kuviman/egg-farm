@@ -170,7 +170,26 @@ impl geng::State for Game {
         ugli::clear(framebuffer, Some(Color::WHITE), None);
         self.map
             .draw(framebuffer, &self.camera, &self.primitive, self.stage);
-        self.player.draw(framebuffer, &self.camera, &self.primitive);
+        self.player.draw(
+            framebuffer,
+            &self.camera,
+            &self.primitive,
+            if self.stage < Stage::Born {
+                Some(
+                    self.map
+                        .tiles
+                        .iter()
+                        .map(|row| {
+                            row.iter()
+                                .filter(|tile| **tile == Tile::BrokenShell)
+                                .count()
+                        })
+                        .sum::<usize>(),
+                )
+            } else {
+                None
+            },
+        );
         self.particles
             .draw(framebuffer, &self.camera, &self.primitive);
 
