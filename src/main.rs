@@ -48,6 +48,7 @@ pub struct Game {
     stage: Stage,
     primitive: Primitive,
     projectiles: Vec<Projectile>,
+    restart: bool,
 }
 
 impl Game {
@@ -65,6 +66,7 @@ impl Game {
             stage: Stage::Start,
             primitive: Primitive::new(geng),
             projectiles: Vec::new(),
+            restart: false,
         }
     }
     fn text_at(&self, pos: Vec2<f32>) -> String {
@@ -295,9 +297,19 @@ impl geng::State for Game {
                 geng::Key::Space => {
                     self.player.want_jump = true;
                 }
+                geng::Key::R => {
+                    self.restart = true;
+                }
                 _ => {}
             },
             _ => {}
+        }
+    }
+    fn transition(&mut self) -> Option<geng::Transition> {
+        if self.restart {
+            Some(geng::Transition::Switch(Box::new(Game::new(&self.geng))))
+        } else {
+            None
         }
     }
 }
