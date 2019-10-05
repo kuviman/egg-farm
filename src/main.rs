@@ -121,6 +121,32 @@ impl geng::State for Game {
                 for _ in 0..10 {
                     self.particles.spawn(self.player.pos, self.player.radius);
                 }
+                let mut shell_pos = Vec::new();
+                for dx in -2..=2 {
+                    for dy in -2..=2 {
+                        if dx.abs() + dy.abs() != 3 {
+                            continue;
+                        }
+                        let x = self.player.pos.x as i32 + dx;
+                        let y = self.player.pos.y as i32 + dy;
+                        if x >= 0
+                            && x < self.map.size().x as _
+                            && y >= 0
+                            && y < self.map.size().y as _
+                        {
+                            shell_pos.push(vec2(x as usize, y as usize));
+                        }
+                    }
+                }
+                use rand::seq::SliceRandom;
+                shell_pos.shuffle(&mut global_rng());
+                for pos in shell_pos.into_iter().take(2) {
+                    self.map.tiles[pos.x][pos.y] = Tile::BrokenShell;
+                    for _ in 0..5 {
+                        self.particles
+                            .spawn(pos.map(|x| x as f32 + 0.5), self.player.radius);
+                    }
+                }
                 self.stage = Stage::Born;
             }
         }

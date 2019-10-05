@@ -1,13 +1,24 @@
 use super::*;
 
-pub struct Map {}
+#[derive(Debug, Copy, Clone)]
+pub enum Tile {
+    Nothing,
+    BrokenShell,
+}
+
+pub struct Map {
+    pub tiles: Vec<Vec<Tile>>,
+}
 
 impl Map {
     pub fn new() -> Self {
-        Self {}
+        let size = vec2(16, 16);
+        Self {
+            tiles: vec![vec![Tile::Nothing; size.y]; size.x],
+        }
     }
     pub fn size(&self) -> Vec2<usize> {
-        vec2(16, 16)
+        vec2(self.tiles.len(), self.tiles[0].len())
     }
     pub fn text_at(&self, pos: Vec2<f32>) -> Option<String> {
         fn close(pos: f32, size: usize) -> bool {
@@ -63,6 +74,21 @@ impl Map {
                 ),
                 Color::BLACK,
             );
+        }
+        for (x, row) in self.tiles.iter().enumerate() {
+            for (y, tile) in row.iter().enumerate() {
+                match tile {
+                    Tile::Nothing => {}
+                    Tile::BrokenShell => {
+                        primitive.quad(
+                            framebuffer,
+                            camera,
+                            AABB::pos_size(vec2(x as f32, y as f32), vec2(1.0, 1.0)),
+                            Color::GRAY,
+                        );
+                    }
+                }
+            }
         }
     }
 }
