@@ -221,6 +221,16 @@ impl geng::State for Game {
         }
         self.particles.update(delta_time);
         for p in &mut self.projectiles {
+            if self.player.alive && (p.pos - self.player.pos).len() < p.radius + self.player.radius
+            {
+                p.alive = false;
+                self.particles.boom(self.player.pos);
+                self.player.alive = false;
+            }
+            self.map.collide_projectile(p);
+            if !p.alive {
+                self.particles.boom(p.pos);
+            }
             p.update(delta_time);
             if p.pos.x < 0.0
                 || p.pos.y < 0.0
@@ -229,12 +239,6 @@ impl geng::State for Game {
             {
                 p.alive = false;
                 self.particles.boom(p.pos);
-            }
-            if self.player.alive && (p.pos - self.player.pos).len() < p.radius + self.player.radius
-            {
-                p.alive = false;
-                self.particles.boom(self.player.pos);
-                self.player.alive = false;
             }
         }
         self.projectiles.retain(|p| p.alive);

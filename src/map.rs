@@ -9,6 +9,7 @@ pub enum Tile {
     Food,
     Poop,
     AngryWeed { time: f32 },
+    MutatedRoot,
 }
 
 struct SharedState {
@@ -28,6 +29,7 @@ impl Tile {
             Self::Food => "Food".to_owned(),
             Self::Poop => "Poop".to_owned(),
             Self::AngryWeed { .. } => "Angry weed".to_owned(),
+            Self::MutatedRoot => "Mutated root".to_owned(),
         }
     }
     fn update(
@@ -116,6 +118,15 @@ impl Tile {
         }
         false
     }
+    fn collide_projectile(&mut self, p: &mut Projectile) {
+        match self {
+            Self::AngryWeed { .. } => {
+                *self = Self::MutatedRoot;
+                p.alive = false;
+            }
+            _ => {}
+        }
+    }
 }
 
 pub struct Map {
@@ -149,6 +160,12 @@ impl Map {
         let pos = pos.map(|x| x as usize);
         if self.tiles[pos.x][pos.y].handle_land() {
             particles.boom(pos.map(|x| x as f32 + 0.5));
+        }
+    }
+    pub fn collide_projectile(&mut self, p: &mut Projectile) {
+        let pos = p.pos.map(|x| x as usize);
+        if pos != p.spawn {
+            self.tiles[pos.x][pos.y].collide_projectile(p);
         }
     }
     pub fn text_at(&self, pos: Vec2<f32>) -> Option<String> {
@@ -397,6 +414,40 @@ impl Map {
                                 Color::BLACK,
                             );
                         }
+                    }
+                    Tile::MutatedRoot => {
+                        primitive.line(
+                            framebuffer,
+                            camera,
+                            vec2(x as f32 + 0.2, y as f32 + 0.3),
+                            vec2(x as f32 + 0.8, y as f32 + 0.3),
+                            0.1,
+                            Color::BLACK,
+                        );
+                        primitive.line(
+                            framebuffer,
+                            camera,
+                            vec2(x as f32 + 0.3, y as f32 + 0.35),
+                            vec2(x as f32 + 0.3, y as f32 + 0.6),
+                            0.1,
+                            Color::RED,
+                        );
+                        primitive.line(
+                            framebuffer,
+                            camera,
+                            vec2(x as f32 + 0.5, y as f32 + 0.35),
+                            vec2(x as f32 + 0.5, y as f32 + 0.6),
+                            0.1,
+                            Color::GREEN,
+                        );
+                        primitive.line(
+                            framebuffer,
+                            camera,
+                            vec2(x as f32 + 0.7, y as f32 + 0.35),
+                            vec2(x as f32 + 0.7, y as f32 + 0.6),
+                            0.1,
+                            Color::BLUE,
+                        );
                     }
                 }
             }

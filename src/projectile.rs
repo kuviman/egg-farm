@@ -5,6 +5,7 @@ pub struct Projectile {
     pub radius: f32,
     pub vel: Vec2<f32>,
     pub alive: bool,
+    pub spawn: Vec2<usize>,
 }
 
 impl Projectile {
@@ -14,6 +15,7 @@ impl Projectile {
             radius,
             vel,
             alive: true,
+            spawn: pos.map(|x| x as usize),
         }
     }
     pub fn update(&mut self, delta_time: f32) {
