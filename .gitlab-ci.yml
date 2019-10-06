@@ -97,8 +97,6 @@ build-macos:
 
 pages:
   stage: deploy
-  dependencies:
-    - build-web
   image: alpine
   script:
     - mv .artifacts public
