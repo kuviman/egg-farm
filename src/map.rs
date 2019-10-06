@@ -107,16 +107,7 @@ impl Tile {
             Self::AngryWeed { time, mutation } => {
                 let pos = pos.map(|x| x as f32 + 0.5);
                 let player_dist = (pos - player.pos).len();
-                if player_dist < 2.0 {
-                    let t = (player_dist - 0.8) / player.max_speed / 2.0;
-                    if t > 1e-5 {
-                        *time -= (*time / t * delta_time).max(delta_time);
-                    } else {
-                        *time -= delta_time;
-                    }
-                } else {
-                    *time -= delta_time;
-                }
+                *time -= delta_time;
                 if player_dist < 0.8 && player_dist > 1e-5 {
                     player.pos = pos + (player.pos - pos).normalize() * 0.8;
                 }
