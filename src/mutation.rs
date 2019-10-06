@@ -35,6 +35,9 @@ impl Mutation {
         }
     }
     pub fn mix(self, other: Option<Self>) -> Option<Self> {
+        if self == Self::RGB || other == Some(Self::RGB) {
+            return Some(Self::RGB);
+        }
         let mut color = self.color();
         if let Some(other) = other {
             let other = other.color();
