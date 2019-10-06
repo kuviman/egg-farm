@@ -18,7 +18,79 @@ build-web:
     - source /opt/scripts/setup-git.sh
   script:
     - cargo web deploy --release
-    - mv $CARGO_TARGET_DIR/deploy .artifacts/web
+    - mv $CARGO_TARGET_DIR/deploy/* .artifacts/
+  artifacts:
+    paths:
+      - .artifacts
+
+build-linux:
+  stage: build
+  image: registry.gitlab.com/kuviman/dock.rs
+  variables:
+    CARGO_HOME: $CI_PROJECT_DIR/.cache/.cargo
+    CARGO_TARGET_DIR: $CI_PROJECT_DIR/.cache/.cargo-target
+  cache:
+    key: "$CI_COMMIT_REF_SLUG-$CI_JOB_NAME"
+    paths:
+      - .cache
+  before_script:
+    - mkdir -p .cache
+    - mkdir -p .artifacts
+    - source /opt/scripts/setup-git.sh
+  script:
+    - cargo build --release
+    - mkdir -p deploy
+    - cp -r static/* deploy/
+    - cp $CARGO_TARGET_DIR/release/egg-farm deploy/
+    - tar -zcf .artifacts/egg-farm-linux.tar.gz -C deploy .
+  artifacts:
+    paths:
+      - .artifacts
+
+build-windows:
+  stage: build
+  image: registry.gitlab.com/kuviman/dock.rs/windows
+  variables:
+    CARGO_HOME: $CI_PROJECT_DIR/.cache/.cargo
+    CARGO_TARGET_DIR: $CI_PROJECT_DIR/.cache/.cargo-target
+  cache:
+    key: "$CI_COMMIT_REF_SLUG-$CI_JOB_NAME"
+    paths:
+      - .cache
+  before_script:
+    - mkdir -p .cache
+    - mkdir -p .artifacts
+    - source /opt/scripts/setup-git.sh
+  script:
+    - cargo build --release --target x86_64-pc-windows-gnu
+    - mkdir -p deploy
+    - cp -r static/* deploy/
+    - cp $CARGO_TARGET_DIR/x86_64-pc-windows-gnu/release/egg-farm.exe deploy/
+    - (cd deploy && zip -r - .) > .artifacts/egg-farm-windows.zip
+  artifacts:
+    paths:
+      - .artifacts
+
+build-macos:
+  stage: build
+  image: registry.gitlab.com/kuviman/dock.rs/macos
+  variables:
+    CARGO_HOME: $CI_PROJECT_DIR/.cache/.cargo
+    CARGO_TARGET_DIR: $CI_PROJECT_DIR/.cache/.cargo-target
+  cache:
+    key: "$CI_COMMIT_REF_SLUG-$CI_JOB_NAME"
+    paths:
+      - .cache
+  before_script:
+    - mkdir -p .cache
+    - mkdir -p .artifacts
+    - source /opt/scripts/setup-git.sh
+  script:
+    - cargo build --release --target x86_64-apple-darwin
+    - mkdir -p deploy
+    - cp -r static/* deploy/
+    - cp $CARGO_TARGET_DIR/x86_64-apple-darwin/release/egg-farm deploy/
+    - tar -zcf .artifacts/egg-farm-macos.tar.gz -C deploy .
   artifacts:
     paths:
       - .artifacts
@@ -29,7 +101,7 @@ pages:
     - build-web
   image: alpine
   script:
-    - mv .artifacts/web public
+    - mv .artifacts public
   artifacts:
     paths:
       - public
