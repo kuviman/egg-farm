@@ -210,9 +210,16 @@ impl Map {
     pub fn size(&self) -> Vec2<usize> {
         vec2(self.tiles.len(), self.tiles[0].len())
     }
-    pub fn land(&mut self, pos: Vec2<f32>, particles: &mut Particles, player: &mut Player) {
+    pub fn land(
+        &mut self,
+        pos: Vec2<f32>,
+        particles: &mut Particles,
+        player: &mut Player,
+        assets: &Assets,
+    ) {
         let pos = pos.map(|x| x as usize);
         if let Some(mutation) = self.tiles[pos.x][pos.y].handle_land(player) {
+            assets.smoke.play();
             particles.boom(pos.map(|x| x as f32 + 0.5), mutation);
         }
     }
@@ -259,6 +266,7 @@ impl Map {
                     player,
                     assets,
                 ) {
+                    assets.smoke.play();
                     particles.boom(vec2(x as f32 + 0.5, y as f32 + 0.5), mutation);
                 }
             }

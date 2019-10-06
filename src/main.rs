@@ -20,6 +20,10 @@ use projectile::*;
 pub struct Assets {
     #[path = "spit.wav"]
     spit: geng::Sound,
+    #[path = "smoke.wav"]
+    smoke: geng::Sound,
+    #[path = "crack.wav"]
+    crack: geng::Sound,
 }
 
 #[derive(Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
@@ -221,6 +225,7 @@ impl geng::State for Game {
                     == Tile::Nothing
             {
                 self.player.eaten = false;
+                self.assets.smoke.play();
                 self.particles.boom(self.player.pos, self.player.mutation);
                 self.map.tiles[self.player.pos.x as usize][self.player.pos.y as usize] =
                     Tile::Poop {
@@ -228,8 +233,12 @@ impl geng::State for Game {
                     };
                 self.player.mutation = None;
             } else {
-                self.map
-                    .land(self.player.pos, &mut self.particles, &mut self.player);
+                self.map.land(
+                    self.player.pos,
+                    &mut self.particles,
+                    &mut self.player,
+                    &self.assets,
+                );
             }
         }
         if self.stage == Stage::Start && (self.player.pos - self.camera.center).len() > 1.0 {
@@ -251,6 +260,8 @@ impl geng::State for Game {
         if fix_pos != self.player.pos {
             self.player.pos = fix_pos;
             if self.player.vel.len() > self.player.max_speed / 2.0 && self.stage == Stage::Moving {
+                self.assets.crack.play();
+                self.assets.smoke.play();
                 self.particles.boom(self.player.pos, None);
                 let mut shell_pos = Vec::new();
                 for dx in -1..=1 {
@@ -328,6 +339,7 @@ impl geng::State for Game {
                 p.alive = false;
             }
             if !p.alive {
+                self.assets.smoke.play();
                 self.particles.boom(p.pos, p.mutation);
             }
         }
