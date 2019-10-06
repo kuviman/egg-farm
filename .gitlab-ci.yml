@@ -37,6 +37,7 @@ build-linux:
     - mkdir -p .cache
     - mkdir -p .artifacts
     - source /opt/scripts/setup-git.sh
+    - rm static/*.html static/*.ttf
   script:
     - cargo build --release
     - mkdir -p deploy
@@ -61,6 +62,7 @@ build-windows:
     - mkdir -p .cache
     - mkdir -p .artifacts
     - source /opt/scripts/setup-git.sh
+    - rm static/*.html static/*.ttf
   script:
     - cargo build --release --target x86_64-pc-windows-gnu
     - mkdir -p deploy
@@ -85,6 +87,7 @@ build-macos:
     - mkdir -p .cache
     - mkdir -p .artifacts
     - source /opt/scripts/setup-git.sh
+    - rm static/*.html static/*.ttf
   script:
     - cargo build --release --target x86_64-apple-darwin
     - mkdir -p deploy
