@@ -123,7 +123,7 @@ impl Tile {
                         projectiles.push(Projectile::new(
                             pos,
                             0.2,
-                            (player.pos - pos).normalize() * 5.0,
+                            (player.pos - pos).normalize() * 3.0,
                             *mutation,
                         ));
                     }
