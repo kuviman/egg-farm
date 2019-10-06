@@ -235,6 +235,7 @@ impl geng::State for Game {
             {
                 self.assets.eat.play();
                 self.player.eaten = true;
+                self.player.almost_dead = false;
                 if let Some(mutation) = mutation {
                     self.player.mutation = mutation.mix(self.player.mutation);
                 }

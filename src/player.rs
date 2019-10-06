@@ -52,10 +52,6 @@ impl Player {
         if !self.alive {
             return;
         }
-        if self.almost_dead && self.eaten {
-            self.almost_dead = false;
-            self.eaten = false;
-        }
         if self.stage >= Stage::Born && (self.want_jump || self.jump.is_some()) {
             if self.jump.is_none() {
                 assets.jump.play();
