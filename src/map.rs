@@ -129,9 +129,10 @@ impl Tile {
         }
         None
     }
-    fn handle_land(&mut self, player: &mut Player) -> Option<Option<Mutation>> {
+    fn handle_land(&mut self, player: &mut Player, assets: &Assets) -> Option<Option<Mutation>> {
         match self {
             Self::BrokenShell => {
+                assets.crack.play();
                 *self = Self::CrushedShell;
                 return Some(None);
             }
@@ -218,7 +219,7 @@ impl Map {
         assets: &Assets,
     ) {
         let pos = pos.map(|x| x as usize);
-        if let Some(mutation) = self.tiles[pos.x][pos.y].handle_land(player) {
+        if let Some(mutation) = self.tiles[pos.x][pos.y].handle_land(player, assets) {
             assets.smoke.play();
             particles.boom(pos.map(|x| x as f32 + 0.5), mutation);
         }
