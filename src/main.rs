@@ -475,7 +475,7 @@ fn main() {
     }));
     let game = geng::LoadingScreen::new(
         &geng,
-        geng::DefaultLoadingScreen::new(&geng),
+        geng::EmptyLoadingScreen,
         <Assets as geng::LoadAsset<_>>::load_from(geng.default_asset_manager(), "."),
         {
             let geng = geng.clone();
