@@ -42,6 +42,12 @@ pub struct Assets {
     weed: geng::Sound,
     #[path = "weed_death.wav"]
     weed_death: geng::Sound,
+    #[path = "trophey.wav"]
+    trophey: geng::Sound,
+    #[path = "win.wav"]
+    win: geng::Sound,
+    #[path = "mutate.wav"]
+    mutate: geng::Sound,
 }
 
 #[derive(Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
@@ -220,6 +226,7 @@ impl geng::State for Game {
             self.stage = Stage::KillAll;
         }
         if self.player.tropheys.len() == 7 {
+            self.assets.win.play();
             self.stage = Stage::Win;
         }
         if !self.player.eaten {

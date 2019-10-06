@@ -161,10 +161,12 @@ impl Tile {
             }
             Self::MutatedRoot => {
                 *self = Self::Nothing;
+                assets.mutate.play();
                 player.mutation = global_rng().gen::<Mutation>().mix(player.mutation);
                 return Some(Some(Mutation::RGB));
             }
             Self::Trophey { mutation } => {
+                assets.trophey.play();
                 player.tropheys.insert(*mutation);
                 *self = Self::Nothing;
             }
