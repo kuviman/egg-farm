@@ -13,6 +13,7 @@ pub struct Player {
     pub want_jump: bool,
     pub landed: bool,
     pub eaten: bool,
+    pub almost_dead: bool,
     pub alive: bool,
     pub mutation: Option<Mutation>,
     pub tropheys: HashSet<Mutation>,
@@ -34,6 +35,7 @@ impl Player {
             landed: false,
             eaten: false,
             alive: true,
+            almost_dead: false,
             mutation: None,
             tropheys: HashSet::new(),
         }
@@ -49,6 +51,10 @@ impl Player {
     pub fn update(&mut self, delta_time: f32) {
         if !self.alive {
             return;
+        }
+        if self.almost_dead && self.eaten {
+            self.almost_dead = false;
+            self.eaten = false;
         }
         if self.stage >= Stage::Born && (self.want_jump || self.jump.is_some()) {
             self.vel = vec2(0.0, 0.0);
@@ -154,20 +160,55 @@ impl Player {
             const EYE_X: f32 = 0.3;
             const EYE_Y: f32 = 0.3;
             const EYE_RADIUS: f32 = 0.2;
-            primitive.circle(
-                framebuffer,
-                camera,
-                pos_with_jump + vec2(EYE_X, EYE_Y) * radius,
-                radius * EYE_RADIUS,
-                Color::BLACK,
-            );
-            primitive.circle(
-                framebuffer,
-                camera,
-                pos_with_jump + vec2(-EYE_X, EYE_Y) * radius,
-                radius * EYE_RADIUS,
-                Color::BLACK,
-            );
+            if self.almost_dead {
+                primitive.line(
+                    framebuffer,
+                    camera,
+                    pos_with_jump + vec2(EYE_X + EYE_RADIUS, EYE_Y + EYE_RADIUS) * radius,
+                    pos_with_jump + vec2(EYE_X - EYE_RADIUS, EYE_Y - EYE_RADIUS) * radius,
+                    radius * EYE_RADIUS * 0.8,
+                    Color::BLACK,
+                );
+                primitive.line(
+                    framebuffer,
+                    camera,
+                    pos_with_jump + vec2(EYE_X - EYE_RADIUS, EYE_Y + EYE_RADIUS) * radius,
+                    pos_with_jump + vec2(EYE_X + EYE_RADIUS, EYE_Y - EYE_RADIUS) * radius,
+                    radius * EYE_RADIUS * 0.8,
+                    Color::BLACK,
+                );
+                primitive.line(
+                    framebuffer,
+                    camera,
+                    pos_with_jump + vec2(-EYE_X + EYE_RADIUS, EYE_Y + EYE_RADIUS) * radius,
+                    pos_with_jump + vec2(-EYE_X - EYE_RADIUS, EYE_Y - EYE_RADIUS) * radius,
+                    radius * EYE_RADIUS * 0.8,
+                    Color::BLACK,
+                );
+                primitive.line(
+                    framebuffer,
+                    camera,
+                    pos_with_jump + vec2(-EYE_X - EYE_RADIUS, EYE_Y + EYE_RADIUS) * radius,
+                    pos_with_jump + vec2(-EYE_X + EYE_RADIUS, EYE_Y - EYE_RADIUS) * radius,
+                    radius * EYE_RADIUS * 0.8,
+                    Color::BLACK,
+                );
+            } else {
+                primitive.circle(
+                    framebuffer,
+                    camera,
+                    pos_with_jump + vec2(EYE_X, EYE_Y) * radius,
+                    radius * EYE_RADIUS,
+                    Color::BLACK,
+                );
+                primitive.circle(
+                    framebuffer,
+                    camera,
+                    pos_with_jump + vec2(-EYE_X, EYE_Y) * radius,
+                    radius * EYE_RADIUS,
+                    Color::BLACK,
+                );
+            }
         }
 
         if let Some(brokes) = brokes {

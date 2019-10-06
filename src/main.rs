@@ -289,8 +289,14 @@ impl geng::State for Game {
             if self.player.alive && (p.pos - self.player.pos).len() < p.radius + self.player.radius
             {
                 p.alive = false;
-                self.particles.boom(self.player.pos, self.player.mutation);
-                self.player.alive = false;
+                if self.player.almost_dead {
+                    self.particles.boom(self.player.pos, self.player.mutation);
+                    self.player.alive = false;
+                } else {
+                    self.player.almost_dead = true;
+                    self.particles.boom(p.pos, p.mutation);
+                    self.player.vel += p.vel * 2.0;
+                }
             }
             self.map.collide_projectile(p);
             p.update(delta_time);
