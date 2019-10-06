@@ -36,6 +36,8 @@ pub struct Assets {
     death: geng::Sound,
     #[path = "jump.wav"]
     jump: geng::Sound,
+    #[path = "projectile_hit.wav"]
+    projectile_hit: geng::Sound,
 }
 
 #[derive(Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
@@ -356,6 +358,7 @@ impl geng::State for Game {
                 p.alive = false;
             }
             if !p.alive {
+                self.assets.projectile_hit.play();
                 self.assets.smoke.play();
                 self.particles.boom(p.pos, p.mutation);
             }
