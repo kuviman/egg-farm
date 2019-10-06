@@ -38,6 +38,8 @@ pub struct Assets {
     jump: geng::Sound,
     #[path = "projectile_hit.wav"]
     projectile_hit: geng::Sound,
+    #[path = "weed.wav"]
+    weed: geng::Sound,
 }
 
 #[derive(Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]

@@ -96,6 +96,9 @@ impl Tile {
                             global_rng().gen_range(0, options.iter().map(|&(w, _)| w).sum::<i32>());
                         for &(w, option) in &options {
                             if rand < w {
+                                if let Self::AngryWeed { .. } = option {
+                                    assets.weed.play();
+                                }
                                 *self = option;
                                 break;
                             }
