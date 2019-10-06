@@ -24,6 +24,8 @@ pub struct Assets {
     smoke: geng::Sound,
     #[path = "crack.wav"]
     crack: geng::Sound,
+    #[path = "birth.wav"]
+    birth: geng::Sound,
 }
 
 #[derive(Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
@@ -299,6 +301,7 @@ impl geng::State for Game {
                     == 3
                 {
                     self.player.radius = 0.3;
+                    self.assets.birth.play();
                     self.stage = Stage::Born;
                 }
             }
