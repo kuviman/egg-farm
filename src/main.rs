@@ -28,6 +28,8 @@ pub struct Assets {
     crack: geng::Sound,
     #[path = "birth.wav"]
     birth: geng::Sound,
+    #[path = "poop.wav"]
+    poop: geng::Sound,
 }
 
 #[derive(Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
@@ -229,6 +231,7 @@ impl geng::State for Game {
                 && self.map.tiles[self.player.pos.x as usize][self.player.pos.y as usize]
                     == Tile::Nothing
             {
+                self.assets.poop.play();
                 self.player.eaten = false;
                 self.assets.smoke.play();
                 self.particles.boom(self.player.pos, self.player.mutation);
