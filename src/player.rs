@@ -57,7 +57,6 @@ impl Player {
             self.eaten = false;
         }
         if self.stage >= Stage::Born && (self.want_jump || self.jump.is_some()) {
-            self.vel = vec2(0.0, 0.0);
             if self.jump.is_none() {
                 self.jump = Some(1.0);
             }
@@ -68,14 +67,15 @@ impl Player {
             } else {
                 self.jump = Some(time_left);
             }
-        } else {
+        }
+        if self.jump.is_none() {
             const ACCEL: f32 = 20.0;
             let dv = self.target_vel * self.max_speed - self.vel;
             if dv.len() > 1e-5 {
                 self.vel += dv.normalize() * (ACCEL * delta_time).min(dv.len())
             }
-            self.pos += self.vel * delta_time;
         }
+        self.pos += self.vel * delta_time;
         self.want_jump = false;
         if self.vel.len() > 1e-5 {
             self.stand_timer -= delta_time * 5.0;
