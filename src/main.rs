@@ -121,7 +121,7 @@ impl geng::State for Game {
             delta_time,
             &mut self.particles,
             &mut self.projectiles,
-            &self.player,
+            &mut self.player,
         );
         self.player.target_vel = vec2(0.0, 0.0);
         if self.geng.window().is_key_pressed(geng::Key::W) {

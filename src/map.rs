@@ -70,7 +70,7 @@ impl Tile {
         shared: &mut SharedState,
         pos: Vec2<usize>,
         projectiles: &mut Vec<Projectile>,
-        player: &Player,
+        player: &mut Player,
     ) -> Option<Option<Mutation>> {
         match self {
             Self::FertilizedSoil { time, mutation } => {
@@ -105,9 +105,10 @@ impl Tile {
                 }
             }
             Self::AngryWeed { time, mutation } => {
-                let player_dist = (pos.map(|x| x as f32 + 0.5) - player.pos).len();
+                let pos = pos.map(|x| x as f32 + 0.5);
+                let player_dist = (pos - player.pos).len();
                 if player_dist < 2.0 {
-                    let t = player_dist / player.max_speed / 2.0;
+                    let t = (player_dist - 0.8) / player.max_speed / 2.0;
                     if t > 1e-5 {
                         *time -= (*time / t * delta_time).max(delta_time);
                     } else {
@@ -116,9 +117,11 @@ impl Tile {
                 } else {
                     *time -= delta_time;
                 }
+                if player_dist < 0.8 && player_dist > 1e-5 {
+                    player.pos = pos + (player.pos - pos).normalize() * 0.8;
+                }
                 if *time < 0.0 {
                     *time = ANGRY_WEED_SHOOT_TIME;
-                    let pos = pos.map(|x| x as f32 + 0.5);
                     if (player.pos - pos).len() > 1e-5 {
                         projectiles.push(Projectile::new(
                             pos,
@@ -146,9 +149,7 @@ impl Tile {
                 };
                 return Some(None);
             }
-            Self::Poop { mutation }
-            | Self::Food { mutation }
-            | Self::AngryWeed { mutation, .. } => {
+            Self::Poop { mutation } | Self::Food { mutation } => {
                 let mutation = *mutation;
                 *self = Self::FertilizedSoil {
                     time: FERTILIZED_SOIL_TIME,
@@ -252,7 +253,7 @@ impl Map {
         delta_time: f32,
         particles: &mut Particles,
         projectiles: &mut Vec<Projectile>,
-        player: &Player,
+        player: &mut Player,
     ) {
         for (x, row) in self.tiles.iter_mut().enumerate() {
             for (y, tile) in row.iter_mut().enumerate() {
