@@ -34,6 +34,8 @@ pub struct Assets {
     hit: geng::Sound,
     #[path = "death.wav"]
     death: geng::Sound,
+    #[path = "jump.wav"]
+    jump: geng::Sound,
 }
 
 #[derive(Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
@@ -162,7 +164,7 @@ impl geng::State for Game {
         if self.player.target_vel.len() > 1e-5 {
             self.player.target_vel = self.player.target_vel.normalize();
         }
-        self.player.update(delta_time);
+        self.player.update(delta_time, &self.assets);
         if self.stage == Stage::Born && self.player.jump.is_some() {
             self.stage = Stage::ToCrush;
         }

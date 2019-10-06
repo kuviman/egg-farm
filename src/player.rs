@@ -48,7 +48,7 @@ impl Player {
             false
         }
     }
-    pub fn update(&mut self, delta_time: f32) {
+    pub fn update(&mut self, delta_time: f32, assets: &Assets) {
         if !self.alive {
             return;
         }
@@ -58,6 +58,7 @@ impl Player {
         }
         if self.stage >= Stage::Born && (self.want_jump || self.jump.is_some()) {
             if self.jump.is_none() {
+                assets.jump.play();
                 self.jump = Some(1.0);
             }
             let time_left = self.jump.unwrap() - delta_time * 3.0;
