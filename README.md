@@ -32,7 +32,14 @@ Then, just run
 cargo run --release
 ```
 
-To build web version, first install [`cargo-web`](https://github.com/koute/cargo-web), then run
+To build web version, first install [`cargo-web`](https://github.com/koute/cargo-web):
+
+```shell
+cargo install cargo-web
+```
+
+Then run
 
 ```shell
 cargo web start --release --open
+```
