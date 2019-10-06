@@ -352,7 +352,7 @@ impl geng::State for Game {
         self.primitive.text_bubble(
             framebuffer,
             &self.camera,
-            "?",
+            "?".to_owned(),
             help_pos,
             self.camera.fov / 20.0,
         );
@@ -370,10 +370,11 @@ impl geng::State for Game {
         self.primitive.text_bubble(
             framebuffer,
             &self.camera,
-            &text,
+            text,
             mouse_pos,
             self.camera.fov / 30.0,
         );
+        self.primitive.flush(framebuffer, &self.camera);
     }
     fn handle_event(&mut self, event: geng::Event) {
         match event {
