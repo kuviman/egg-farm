@@ -20,6 +20,8 @@ use projectile::*;
 pub struct Assets {
     #[path = "spit.wav"]
     spit: geng::Sound,
+    #[path = "eat.wav"]
+    eat: geng::Sound,
     #[path = "smoke.wav"]
     smoke: geng::Sound,
     #[path = "crack.wav"]
@@ -210,6 +212,7 @@ impl geng::State for Game {
             if let Tile::Food { mutation } =
                 self.map.tiles[self.player.pos.x as usize][self.player.pos.y as usize]
             {
+                self.assets.eat.play();
                 self.player.eaten = true;
                 if let Some(mutation) = mutation {
                     self.player.mutation = mutation.mix(self.player.mutation);
