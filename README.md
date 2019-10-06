@@ -8,7 +8,11 @@ Start with reading nothing. Spoilers are disadvised.
 
 For web version of this game, visit https://kuviman.gitlab.io/egg-farm.
 
-It is also possible to build a native version from source.
+Or download native version:
+
+- [Windows](https://kuviman.gitlab.io/egg-farm/egg-farm-windows.zip)
+- [Linux](https://kuviman.gitlab.io/egg-farm/egg-farm-linux.tar.gz)
+- [MacOS](https://kuviman.gitlab.io/egg-farm/egg-farm-macos.tar.gz)
 
 ## About
 
