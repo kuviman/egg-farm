@@ -16,6 +16,12 @@ use player::*;
 use primitive::*;
 use projectile::*;
 
+#[derive(geng::Assets)]
+pub struct Assets {
+    #[path = "spit.wav"]
+    spit: geng::Sound,
+}
+
 #[derive(Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
 pub enum Stage {
     Start,
@@ -56,6 +62,7 @@ impl Stage {
 }
 
 pub struct Game {
+    assets: Rc<Assets>,
     geng: Rc<Geng>,
     camera: Camera,
     particles: Particles,
@@ -68,12 +75,13 @@ pub struct Game {
 }
 
 impl Game {
-    fn new(geng: &Rc<Geng>) -> Self {
+    fn new(geng: &Rc<Geng>, assets: &Rc<Assets>) -> Self {
         let map = Map::new();
         let mut camera = Camera::new(0.1);
         camera.center = map.size().map(|x| x as f32) / 2.0;
         let player = Player::new(camera.center);
         Self {
+            assets: assets.clone(),
             geng: geng.clone(),
             camera,
             particles: Particles::new(),
@@ -122,6 +130,7 @@ impl geng::State for Game {
             &mut self.particles,
             &mut self.projectiles,
             &mut self.player,
+            &self.assets,
         );
         self.player.target_vel = vec2(0.0, 0.0);
         if self.geng.window().is_key_pressed(geng::Key::W) {
@@ -403,7 +412,10 @@ impl geng::State for Game {
     }
     fn transition(&mut self) -> Option<geng::Transition> {
         if self.restart {
-            Some(geng::Transition::Switch(Box::new(Game::new(&self.geng))))
+            Some(geng::Transition::Switch(Box::new(Game::new(
+                &self.geng,
+                &self.assets,
+            ))))
         } else {
             None
         }
@@ -411,10 +423,24 @@ impl geng::State for Game {
 }
 
 fn main() {
+    if let Ok(dir) = std::env::var("CARGO_MANIFEST_DIR") {
+        std::env::set_current_dir(std::path::Path::new(&dir).join("static")).unwrap();
+    }
     let geng = Rc::new(Geng::new(geng::ContextOptions {
         title: "Egg Farm".to_owned(),
         ..default()
     }));
-    let game = Game::new(&geng);
+    let game = geng::LoadingScreen::new(
+        &geng,
+        geng::DefaultLoadingScreen::new(&geng),
+        <Assets as geng::LoadAsset<_>>::load_from(geng.default_asset_manager(), "."),
+        {
+            let geng = geng.clone();
+            move |assets| {
+                let assets = Rc::new(assets.unwrap());
+                Game::new(&geng, &assets)
+            }
+        },
+    );
     geng::run(geng, game);
 }

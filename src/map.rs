@@ -71,6 +71,7 @@ impl Tile {
         pos: Vec2<usize>,
         projectiles: &mut Vec<Projectile>,
         player: &mut Player,
+        assets: &Assets,
     ) -> Option<Option<Mutation>> {
         match self {
             Self::FertilizedSoil { time, mutation } => {
@@ -114,6 +115,7 @@ impl Tile {
                 if *time < 0.0 {
                     *time = ANGRY_WEED_SHOOT_TIME;
                     if (player.pos - pos).len() > 1e-5 {
+                        assets.spit.play();
                         projectiles.push(Projectile::new(
                             pos,
                             0.2,
@@ -245,6 +247,7 @@ impl Map {
         particles: &mut Particles,
         projectiles: &mut Vec<Projectile>,
         player: &mut Player,
+        assets: &Assets,
     ) {
         for (x, row) in self.tiles.iter_mut().enumerate() {
             for (y, tile) in row.iter_mut().enumerate() {
@@ -254,6 +257,7 @@ impl Map {
                     vec2(x, y),
                     projectiles,
                     player,
+                    assets,
                 ) {
                     particles.boom(vec2(x as f32 + 0.5, y as f32 + 0.5), mutation);
                 }
