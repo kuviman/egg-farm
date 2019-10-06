@@ -37,11 +37,11 @@ build-linux:
     - mkdir -p .cache
     - mkdir -p .artifacts
     - source /opt/scripts/setup-git.sh
-    - rm static/*.html static/*.ttf
   script:
     - cargo build --release
     - mkdir -p deploy
     - cp -r static/* deploy/
+    - rm deploy/*.html deploy/*.ttf
     - cp $CARGO_TARGET_DIR/release/egg-farm deploy/
     - tar -zcf .artifacts/egg-farm-linux.tar.gz -C deploy .
   artifacts:
@@ -62,11 +62,11 @@ build-windows:
     - mkdir -p .cache
     - mkdir -p .artifacts
     - source /opt/scripts/setup-git.sh
-    - rm static/*.html static/*.ttf
   script:
     - cargo build --release --target x86_64-pc-windows-gnu
     - mkdir -p deploy
     - cp -r static/* deploy/
+    - rm deploy/*.html deploy/*.ttf
     - cp $CARGO_TARGET_DIR/x86_64-pc-windows-gnu/release/egg-farm.exe deploy/
     - (cd deploy && zip -r - .) > .artifacts/egg-farm-windows.zip
   artifacts:
@@ -87,11 +87,11 @@ build-macos:
     - mkdir -p .cache
     - mkdir -p .artifacts
     - source /opt/scripts/setup-git.sh
-    - rm static/*.html static/*.ttf
   script:
     - cargo build --release --target x86_64-apple-darwin
     - mkdir -p deploy
     - cp -r static/* deploy/
+    - rm deploy/*.html deploy/*.ttf
     - cp $CARGO_TARGET_DIR/x86_64-apple-darwin/release/egg-farm deploy/
     - tar -zcf .artifacts/egg-farm-macos.tar.gz -C deploy .
   artifacts:
