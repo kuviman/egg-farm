@@ -285,6 +285,17 @@ impl geng::State for Game {
             self.player.vel = vec2(0.0, 0.0);
         }
         self.particles.update(delta_time);
+        for i in 0..self.projectiles.len() {
+            for j in 0..i {
+                if (self.projectiles[i].pos - self.projectiles[j].pos).len()
+                    < self.projectiles[i].radius + self.projectiles[j].radius
+                    && self.projectiles[i].mutation == self.projectiles[j].mutation
+                {
+                    self.projectiles[i].alive = false;
+                    self.projectiles[j].alive = false;
+                }
+            }
+        }
         for p in &mut self.projectiles {
             if self.player.alive && (p.pos - self.player.pos).len() < p.radius + self.player.radius
             {
