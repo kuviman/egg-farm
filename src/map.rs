@@ -172,9 +172,10 @@ impl Tile {
         }
         None
     }
-    fn collide_projectile(&mut self, p: &mut Projectile) {
+    fn collide_projectile(&mut self, p: &mut Projectile, assets: &Assets) {
         match self {
             Self::AngryWeed { mutation, .. } if *mutation == p.mutation => {
+                assets.weed_death.play();
                 if let Some(mutation) = *mutation {
                     *self = Self::Trophey { mutation };
                 } else {
@@ -227,10 +228,10 @@ impl Map {
             particles.boom(pos.map(|x| x as f32 + 0.5), mutation);
         }
     }
-    pub fn collide_projectile(&mut self, p: &mut Projectile) {
+    pub fn collide_projectile(&mut self, p: &mut Projectile, assets: &Assets) {
         let pos = p.pos.map(|x| x as usize);
         if pos != p.spawn {
-            self.tiles[pos.x][pos.y].collide_projectile(p);
+            self.tiles[pos.x][pos.y].collide_projectile(p, assets);
         }
     }
     pub fn text_at(&self, pos: Vec2<f32>) -> Option<String> {

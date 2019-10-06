@@ -40,6 +40,8 @@ pub struct Assets {
     projectile_hit: geng::Sound,
     #[path = "weed.wav"]
     weed: geng::Sound,
+    #[path = "weed_death.wav"]
+    weed_death: geng::Sound,
 }
 
 #[derive(Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
@@ -350,7 +352,7 @@ impl geng::State for Game {
                     self.player.vel += p.vel * 2.0;
                 }
             }
-            self.map.collide_projectile(p);
+            self.map.collide_projectile(p, &self.assets);
             p.update(delta_time);
             if p.pos.x < 0.0
                 || p.pos.y < 0.0
