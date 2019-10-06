@@ -83,7 +83,7 @@ impl Stage {
             Self::Mutate => "This mutated root must be destroyed!",
             Self::GrowMutation => "Maybe mutation should be spread, make life more colorful",
             Self::KillMutated => "Well, you've done this before",
-            Self::KillAll => "Collect all tropheys. Mixing mutated root with mutated food will mutate it even further!",
+            Self::KillAll => "Collect all tropheys. Remember you can mix colors!",
             Self::Win => "You WON! Congrats! Make screenshot, or nobody will believe you!",
         }
     }
