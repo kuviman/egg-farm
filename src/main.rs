@@ -30,6 +30,10 @@ pub struct Assets {
     birth: geng::Sound,
     #[path = "poop.wav"]
     poop: geng::Sound,
+    #[path = "hit.wav"]
+    hit: geng::Sound,
+    #[path = "death.wav"]
+    death: geng::Sound,
 }
 
 #[derive(Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq)]
@@ -330,9 +334,11 @@ impl geng::State for Game {
             {
                 p.alive = false;
                 if self.player.almost_dead {
+                    self.assets.death.play();
                     self.particles.boom(self.player.pos, self.player.mutation);
                     self.player.alive = false;
                 } else {
+                    self.assets.hit.play();
                     self.player.almost_dead = true;
                     self.particles.boom(p.pos, p.mutation);
                     self.player.vel += p.vel * 2.0;
