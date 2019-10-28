@@ -20,35 +20,35 @@ use projectile::*;
 
 #[derive(geng::Assets)]
 pub struct Assets {
-    #[path = "spit.wav"]
+    #[asset(path = "spit.wav")]
     spit: geng::Sound,
-    #[path = "eat.wav"]
+    #[asset(path = "eat.wav")]
     eat: geng::Sound,
-    #[path = "smoke.wav"]
+    #[asset(path = "smoke.wav")]
     smoke: geng::Sound,
-    #[path = "crack.wav"]
+    #[asset(path = "crack.wav")]
     crack: geng::Sound,
-    #[path = "birth.wav"]
+    #[asset(path = "birth.wav")]
     birth: geng::Sound,
-    #[path = "poop.wav"]
+    #[asset(path = "poop.wav")]
     poop: geng::Sound,
-    #[path = "hit.wav"]
+    #[asset(path = "hit.wav")]
     hit: geng::Sound,
-    #[path = "death.wav"]
+    #[asset(path = "death.wav")]
     death: geng::Sound,
-    #[path = "jump.wav"]
+    #[asset(path = "jump.wav")]
     jump: geng::Sound,
-    #[path = "projectile_hit.wav"]
+    #[asset(path = "projectile_hit.wav")]
     projectile_hit: geng::Sound,
-    #[path = "weed.wav"]
+    #[asset(path = "weed.wav")]
     weed: geng::Sound,
-    #[path = "weed_death.wav"]
+    #[asset(path = "weed_death.wav")]
     weed_death: geng::Sound,
-    #[path = "trophey.wav"]
+    #[asset(path = "trophey.wav")]
     trophey: geng::Sound,
-    #[path = "win.wav"]
+    #[asset(path = "win.wav")]
     win: geng::Sound,
-    #[path = "mutate.wav"]
+    #[asset(path = "mutate.wav")]
     mutate: geng::Sound,
 }
 
