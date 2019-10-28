@@ -479,7 +479,7 @@ fn main() {
     let game = geng::LoadingScreen::new(
         &geng,
         geng::EmptyLoadingScreen,
-        <Assets as geng::LoadAsset<_>>::load_from(geng.default_asset_manager(), "."),
+        geng::LoadAsset::load(&geng, "."),
         {
             let geng = geng.clone();
             move |assets| {
