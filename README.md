@@ -2,8 +2,6 @@
 
 This is a game developed for [Ludum Dare 45](https://ldjam.com/events/ludum-dare/45/egg-farm).
 
-Start with reading nothing. Spoilers are disadvised.
-
 ## Play
 
 For web version of this game, visit https://kuviman.gitlab.io/egg-farm.
