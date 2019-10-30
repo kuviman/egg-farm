@@ -1,6 +1,6 @@
 # Egg Farm
 
-This is a game developed for [Ludum Dare 45](https://ldjam.com/events/ludum-dare/45).
+This is a game developed for [Ludum Dare 45](https://ldjam.com/events/ludum-dare/45/egg-farm).
 
 Start with reading nothing. Spoilers are disadvised.
 
@@ -16,7 +16,7 @@ Or download native version:
 
 ## About
 
-Ultra hardcore top down bullet hell farming simulator.
+Ultra hardcore puzzle bullet hell farming simulator.
 
 ![Start](start_with_nothing.gif)
 
