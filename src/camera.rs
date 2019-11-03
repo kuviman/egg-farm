@@ -21,7 +21,7 @@ impl Camera {
         Mat4::scale_uniform(1.0 / self.fov) * Mat4::translate(-self.center.extend(0.0))
     }
     fn projection_matrix(&self, framebuffer: &ugli::Framebuffer) -> Mat4<f32> {
-        let framebuffer_size = framebuffer.get_size().map(|x| x as f32);
+        let framebuffer_size = framebuffer.size().map(|x| x as f32);
         Mat4::scale(vec3(
             2.0 * framebuffer_size.y / framebuffer_size.x,
             2.0,
@@ -35,7 +35,7 @@ impl Camera {
         }
     }
     pub fn world_to_screen(&self, framebuffer: &ugli::Framebuffer, pos: Vec2<f32>) -> Vec2<f32> {
-        let framebuffer_size = framebuffer.get_size().map(|x| x as f32);
+        let framebuffer_size = framebuffer.size().map(|x| x as f32);
         let pos = (self.projection_matrix(framebuffer) * self.view_matrix())
             * pos.extend(0.0).extend(1.0);
         vec2(
@@ -44,7 +44,7 @@ impl Camera {
         )
     }
     pub fn screen_to_world(&self, framebuffer: &ugli::Framebuffer, pos: Vec2<f32>) -> Vec2<f32> {
-        let framebuffer_size = framebuffer.get_size().map(|x| x as f32);
+        let framebuffer_size = framebuffer.size().map(|x| x as f32);
         let pos = vec2(
             pos.x / framebuffer_size.x * 2.0 - 1.0,
             pos.y / framebuffer_size.y * 2.0 - 1.0,
