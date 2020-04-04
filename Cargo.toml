@@ -5,4 +5,4 @@ authors = ["kuviman <kuviman@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-geng = { git = "https://gitlab.com/kuviman/geng" }
+geng = "0.1"
