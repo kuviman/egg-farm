@@ -50,6 +50,23 @@ jobs:
           command: build
           args: --release
 
+      - name: Prepare artifacts
+        shell: bash
+        run: |
+          set -e
+          cp -r static artifacts
+          rm artifacts/*.html artifacts/*.ttf
+          if [ "${{ runner.os }} " == "Windows" ]; then
+            EXT=.exe
+          fi
+          cp target/release/egg-farm$EXT artifacts/
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v1
+        with:
+          name: ${{ runner.os }}-artifacts
+          path: ./artifacts
+
   web:
     name: Web build
     runs-on: ubuntu-latest
