@@ -4,13 +4,9 @@ This is a game developed for [Ludum Dare 45](https://ldjam.com/events/ludum-dare
 
 ## Play
 
-For web version of this game, visit https://kuviman.gitlab.io/egg-farm.
+For web version of this game, visit https://kuviman.github.io/egg-farm/.
 
-Or download native version:
-
-- [Windows](https://kuviman.gitlab.io/egg-farm/egg-farm-windows.zip)
-- [Linux](https://kuviman.gitlab.io/egg-farm/egg-farm-linux.tar.gz)
-- [MacOS](https://kuviman.gitlab.io/egg-farm/egg-farm-macos.tar.gz)
+Native versions can be built from source.
 
 ## About
 
