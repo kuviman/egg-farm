@@ -1,8 +1,5 @@
 name: CI
-on:
-  push:
-    branches:
-      - master
+on: push
 
 jobs:
   native:
@@ -91,3 +88,10 @@ jobs:
         with:
           command: web
           args: deploy --release
+
+      - name: Deploy GitHub Pages
+        if: github.ref == 'refs/heads/master'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./deploy
