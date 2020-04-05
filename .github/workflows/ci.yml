@@ -30,19 +30,19 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry
+          key: ${{ runner.os }}-cargo-registry2
 
       - name: Cache cargo index
         uses: actions/cache@v1
         with:
           path: ~/.cargo/git
-          key: ${{ runner.os }}-cargo-index
+          key: ${{ runner.os }}-cargo-index2
 
       - name: Cache cargo target dir
         uses: actions/cache@v1
         with:
           path: target
-          key: ${{ runner.os }}-cargo-build-target
+          key: ${{ runner.os }}-cargo-build-target2
 
       - name: Build
         uses: actions-rs/cargo@v1
