@@ -83,10 +83,8 @@ jobs:
           key: web-cargo-build-target
 
       - name: Install cargo-web
-        uses: actions-rs/cargo@v1
-        with:
-          command: install
-          args: cargo-web
+        run: sudo sh install-cargo-web.sh
+        working-directory: .github/workflows
 
       - name: Build
         uses: actions-rs/cargo@v1
