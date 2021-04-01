@@ -93,7 +93,7 @@ impl Tile {
                             ),
                         ];
                         let mut rand =
-                            global_rng().gen_range(0, options.iter().map(|&(w, _)| w).sum::<i32>());
+                            global_rng().gen_range(0..options.iter().map(|&(w, _)| w).sum::<i32>());
                         for &(w, option) in &options {
                             if rand < w {
                                 if let Self::AngryWeed { .. } = option {

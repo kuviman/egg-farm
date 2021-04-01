@@ -35,9 +35,9 @@ impl Particles {
             size,
             vel: Vec2::rotated(
                 vec2(size, 0.0),
-                global_rng().gen_range(0.0, 2.0 * std::f32::consts::PI),
+                global_rng().gen_range(0.0..=2.0 * std::f32::consts::PI),
             ),
-            speed: global_rng().gen_range(1.0, 2.0),
+            speed: global_rng().gen_range(1.0..=2.0),
             t: 0.0,
             color: mutation.map_or(Color::WHITE, |m| m.color()),
         })

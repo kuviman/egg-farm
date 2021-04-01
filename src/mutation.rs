@@ -13,7 +13,7 @@ pub enum Mutation {
 
 impl Distribution<Mutation> for distributions::Standard {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Mutation {
-        match rng.gen_range(0, 3) {
+        match rng.gen_range(0..3) {
             0 => Mutation::Red,
             1 => Mutation::Green,
             2 => Mutation::Blue,
