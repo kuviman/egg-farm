@@ -19,7 +19,7 @@ jobs:
       - name: Install cargo-geng
         run: |
           cargo install cargo-geng --git https://github.com/kuviman/geng
-          cargo isntall wasm-bindgen-cli
+          cargo install wasm-bindgen-cli
 
       - name: Build
         uses: actions-rs/cargo@v1
