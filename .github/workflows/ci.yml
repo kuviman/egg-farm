@@ -2,70 +2,6 @@ name: CI
 on: push
 
 jobs:
-  native:
-    name: Native builds
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
-
-      - if: matrix.os == 'ubuntu-latest'
-        run: sudo chown -R $(whoami):$(id -ng) ~/.cargo/
-
-      - name: Install dependencies
-        if: matrix.os == 'ubuntu-latest'
-        run: sudo apt-get update && sudo apt-get install libasound2-dev libgtk-3-dev
-
-      - name: Cache cargo registry
-        uses: actions/cache@v1
-        with:
-          path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry2
-
-      - name: Cache cargo index
-        uses: actions/cache@v1
-        with:
-          path: ~/.cargo/git
-          key: ${{ runner.os }}-cargo-index2
-
-      - name: Cache cargo target dir
-        uses: actions/cache@v1
-        with:
-          path: target
-          key: ${{ runner.os }}-cargo-build-target2
-
-      - name: Build
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release
-
-      - name: Prepare artifacts
-        shell: bash
-        run: |
-          cp -r static artifacts
-          rm artifacts/*.html artifacts/*.ttf
-          if [ "${{ runner.os }} " == "Windows" ]; then
-            EXT=.exe
-          fi
-          cp target/release/egg-farm$EXT artifacts/
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v1
-        with:
-          name: ${{ runner.os }}-artifacts
-          path: ./artifacts
-
   web:
     name: Web build
     runs-on: ubuntu-latest
@@ -80,37 +16,18 @@ jobs:
           profile: minimal
           target: wasm32-unknown-unknown
 
-      - name: Cache cargo registry
-        uses: actions/cache@v1
-        with:
-          path: ~/.cargo/registry
-          key: web-cargo-registry
-
-      - name: Cache cargo index
-        uses: actions/cache@v1
-        with:
-          path: ~/.cargo/git
-          key: web-cargo-index
-
-      - name: Cache cargo target dir
-        uses: actions/cache@v1
-        with:
-          path: target
-          key: web-cargo-build-target
-
-      - name: Install cargo-web
-        run: bash install-cargo-web.sh
-        working-directory: .github/workflows
+      - name: Install cargo-geng
+        run: cargo install cargo-geng --git https://github.com/kuviman/geng
 
       - name: Build
         uses: actions-rs/cargo@v1
         with:
-          command: web
-          args: deploy --release
+          command: geng
+          args: build --release --target wasm32-unknown-unknown
 
       - name: Deploy GitHub Pages
         if: github.ref == 'refs/heads/master'
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./target/deploy
+          publish_dir: ./target/geng
