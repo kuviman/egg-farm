@@ -5,4 +5,4 @@ authors = ["kuviman <kuviman@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-geng = "0.8.0-alpha"
+geng = "0.8.0-alpha.6"
