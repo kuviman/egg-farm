@@ -4,7 +4,7 @@ This is a game developed for [Ludum Dare 45](https://ldjam.com/events/ludum-dare
 
 ## Play
 
-For web version of this game, visit https://kuviman.github.io/egg-farm/.
+For web version of this game, visit <https://kuviman.github.io/egg-farm/>.
 
 Native versions can be built from source.
 
